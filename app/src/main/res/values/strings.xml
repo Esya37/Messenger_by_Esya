@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Messenger by Esya</string>
+
+    <string name="enter_email">Введите e-mail:</string>
+    <string name="enter_password">Введите пароль:</string>
+    <string name="repeat_password">Повторите пароль:</string>
+    <string name="enter_email_hint">Введите e-mail</string>
+    <string name="enter_password_hint">Введите пароль</string>
+    <string name="repeat_password_hint">Повторите пароль</string>
+    <string name="accept">Подтвердить</string>
+    <string name="settings">Настройки</string>
+    <string name="log_out">Выйти из аккаунта</string>
+    <string name="send">Отправить</string>
+    <string name="enter_message">Введите сообщение</string>
+</resources>

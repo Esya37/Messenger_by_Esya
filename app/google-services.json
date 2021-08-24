@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "76847946015",
+    "project_id": "messenger-by-esya",
+    "storage_bucket": "messenger-by-esya.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:76847946015:android:4e54637bad4efa9c04b82a",
+        "android_client_info": {
+          "package_name": "com.example.messengerbyesya"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "76847946015-j9q20iu2kcent6u9ncbdn0rjt0fqtdgt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA1oUB2zPoprCexCVmzYLBqumHzEHt77Fc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "76847946015-j9q20iu2kcent6u9ncbdn0rjt0fqtdgt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

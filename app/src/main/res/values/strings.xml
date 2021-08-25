@@ -12,4 +12,17 @@
     <string name="log_out">Выйти из аккаунта</string>
     <string name="send">Отправить</string>
     <string name="enter_message">Введите сообщение</string>
+    <string name="profile_settings">Настройки профиля</string>
+    <string name="change_name">Изменить имя профиля</string>
+    <string name="change_password">Изменить пароль</string>
+    <string name="change_avatar">Изменить аватар</string>
+    <string name="delete_avatar">Удалить аватар</string>
+    <string name="rename_profile_name_and_press_accept_button">Измените имя профиля и нажмите кнопку "Подтвердить"</string>
+    <string name="cancel">Отменить</string>
+    <string name="enter_name">Введите имя</string>
+    <string name="enter_old_password">Введите старый пароль:</string>
+    <string name="enter_new_password">Введите новый пароль:</string>
+    <string name="repeat_new_password">Повторите новый пароль:</string>
+    <string name="old_password_hint">Старый пароль</string>
+    <string name="new_password_hint">Новый пароль</string>
 </resources>

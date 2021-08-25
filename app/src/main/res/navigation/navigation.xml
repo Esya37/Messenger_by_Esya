@@ -12,7 +12,8 @@
         tools:layout="@layout/fragment_authentification" >
         <action
             android:id="@+id/action_authentificationFragment_to_chatFragment"
-            app:destination="@id/chatFragment" />
+            app:destination="@id/chatFragment"
+            app:popUpTo="@id/navigation" />
     </fragment>
     <fragment
         android:id="@+id/chatFragment"
@@ -22,6 +23,10 @@
         <action
             android:id="@+id/action_chatFragment_to_settingFragment"
             app:destination="@id/settingFragment" />
+        <action
+            android:id="@+id/action_chatFragment_to_authentificationFragment"
+            app:destination="@id/authentificationFragment"
+            app:popUpTo="@id/navigation" />
     </fragment>
     <fragment
         android:id="@+id/settingFragment"

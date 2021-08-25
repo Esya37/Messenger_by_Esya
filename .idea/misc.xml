@@ -6,11 +6,13 @@
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/input_meesage_field.xml" value="0.22135416666666666" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/send_button_text_color.xml" value="0.22135416666666666" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/activity_main.xml" value="0.22" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/change_name_dialog.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/change_password_dialog.xml" value="0.25" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/fragment_authentification.xml" value="0.20520833333333333" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/fragment_chat.xml" value="0.22" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/fragment_log_in.xml" value="0.20520833333333333" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/fragment_registration.xml" value="0.20520833333333333" />
-        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/fragment_setting.xml" value="0.20520833333333333" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/fragment_setting.xml" value="0.22" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/header_of_navigation_view.xml" value="0.20520833333333333" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/menu/navigation_view_menu.xml" value="0.20520833333333333" />
       </map>

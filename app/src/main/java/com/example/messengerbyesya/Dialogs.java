@@ -1,11 +1,21 @@
 package com.example.messengerbyesya;
 
 import android.app.Activity;
+import android.app.Instrumentation;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
@@ -20,7 +30,10 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import java.io.ByteArrayOutputStream;
 import java.util.regex.Pattern;
 
 public class Dialogs {
@@ -37,8 +50,11 @@ public class Dialogs {
     private EditText oldPasswordEditText;
     private EditText newPasswordEditText;
     private EditText newPasswordRepeatedEditText;
+    private String[] name;
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
+    private FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
+    private StorageReference firebaseStorageRef = firebaseStorage.getReferenceFromUrl("gs://messenger-by-esya.appspot.com/");
 
     public AlertDialog getDialog(Activity activity, DialogType dialogType, User currentUser, String currentUserId) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
@@ -49,6 +65,7 @@ public class Dialogs {
                 inflatedView = activity.getLayoutInflater().inflate(R.layout.change_name_dialog, null);
                 changeNameEditText = inflatedView.findViewById(R.id.changeNameEditText);
                 changeNameEditText.setText(currentUser.getName());
+                name = new String[2];
                 builder.setView(inflatedView);
                 builder.setPositiveButton(R.string.accept, null);
                 builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -64,7 +81,22 @@ public class Dialogs {
                         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                //TODO Добавить валидацию
+                                if (changeNameEditText.getText().toString().split(" ").length != 2) {
+                                    changeNameEditText.setError("Имя должно состоять из двух слов");
+                                    return;
+                                }
+                                name = changeNameEditText.getText().toString().split(" ");
+                                if(Character.isLowerCase(name[0].charAt(0)) || (Character.isLowerCase(name[1].charAt(0)))){
+                                    changeNameEditText.setError("Имя и фамилия должны начинаться с заглавной буквы");
+                                    return;
+                                }
+                                for(int i = 0; i < changeNameEditText.getText().toString().length(); i++) {
+                                    if(!((Character.UnicodeBlock.of(changeNameEditText.getText().toString().charAt(i)).equals(Character.UnicodeBlock.CYRILLIC)) || Character.isSpaceChar(changeNameEditText.getText().toString().charAt(i)))) {
+                                        changeNameEditText.setError("Имя и фамилия должны содержать только буквы русского алфавита");
+                                        return;
+                                    }
+                                }
+                                changeNameEditText.setError(null);
                                 currentUser.setName(changeNameEditText.getText().toString());
                                 firebaseFirestore.collection("user").document(currentUserId).set(currentUser);
                                 dialog.dismiss();
@@ -143,9 +175,23 @@ public class Dialogs {
                 return alertDialog;
             case changeAvatar:
 
+
                 return builder.create();
             case deleteAvatar:
-
+                builder.setMessage(R.string.delete_avatar_confirm);
+                builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+                builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        currentUser.setAvatar("none");
+                        firebaseFirestore.collection("user").document(currentUserId).set(currentUser);
+                    }
+                });
                 return builder.create();
             default:
                 return null;

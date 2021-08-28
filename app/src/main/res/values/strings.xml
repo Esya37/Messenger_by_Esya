@@ -25,4 +25,10 @@
     <string name="repeat_new_password">Повторите новый пароль:</string>
     <string name="old_password_hint">Старый пароль</string>
     <string name="new_password_hint">Новый пароль</string>
+    <string name="delete_avatar_confirm">Вы уверены, что хотите удалить аватар?</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="your_current_avatar">Ваш текущий аватар:</string>
+    <string name="upload_from_device">Загрузить с устройства</string>
+
 </resources>

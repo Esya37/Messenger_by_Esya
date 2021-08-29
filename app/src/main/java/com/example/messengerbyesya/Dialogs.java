@@ -86,17 +86,20 @@ public class Dialogs {
                                     return;
                                 }
                                 name = changeNameEditText.getText().toString().split(" ");
-                                if(Character.isLowerCase(name[0].charAt(0)) || (Character.isLowerCase(name[1].charAt(0)))){
+                                if (Character.isLowerCase(name[0].charAt(0)) || (Character.isLowerCase(name[1].charAt(0)))) {
                                     changeNameEditText.setError("Имя и фамилия должны начинаться с заглавной буквы");
                                     return;
                                 }
-                                for(int i = 0; i < changeNameEditText.getText().toString().length(); i++) {
-                                    if(!((Character.UnicodeBlock.of(changeNameEditText.getText().toString().charAt(i)).equals(Character.UnicodeBlock.CYRILLIC)) || Character.isSpaceChar(changeNameEditText.getText().toString().charAt(i)))) {
+                                for (int i = 0; i < changeNameEditText.getText().toString().length(); i++) {
+                                    if (!((Character.UnicodeBlock.of(changeNameEditText.getText().toString().charAt(i)).equals(Character.UnicodeBlock.CYRILLIC)) || Character.isSpaceChar(changeNameEditText.getText().toString().charAt(i)))) {
                                         changeNameEditText.setError("Имя и фамилия должны содержать только буквы русского алфавита");
                                         return;
                                     }
                                 }
                                 changeNameEditText.setError(null);
+                                if (currentUser.getAvatar().equals("none") || currentUser.getAvatar().equals("none_" + currentUser.getEmail())) {
+                                    currentUser.setAvatar("none");
+                                }
                                 currentUser.setName(changeNameEditText.getText().toString());
                                 firebaseFirestore.collection("user").document(currentUserId).set(currentUser);
                                 dialog.dismiss();
@@ -188,8 +191,14 @@ public class Dialogs {
                 builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        if (currentUser.getAvatar().equals("none_" + currentUser.getEmail())) {
+                            firebaseStorageRef.child("none_" + currentUser.getEmail()).delete();
+                        } else if (currentUser.getAvatar().equals("Avatar_" + currentUser.getEmail())) {
+                            firebaseStorageRef.child("Avatar_" + currentUser.getEmail()).delete();
+                        }
                         currentUser.setAvatar("none");
                         firebaseFirestore.collection("user").document(currentUserId).set(currentUser);
+
                     }
                 });
                 return builder.create();

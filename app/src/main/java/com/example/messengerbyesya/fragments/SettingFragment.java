@@ -98,7 +98,7 @@ public class SettingFragment extends Fragment {
         buttonSetOnClickListener(R.id.changePasswordButton, Dialogs.DialogType.changePassword);
         //buttonSetOnClickListener(R.id.changeAvatarButton, Dialogs.DialogType.changeAvatar);
         buttonSetOnClickListener(R.id.deleteAvatarButton, Dialogs.DialogType.deleteAvatar);
-
+        //TODO Сделать загрузку изображения из облака
         settingItemButton = inflatedView.findViewById(R.id.changeAvatarButton);
         settingItemButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,6 +114,7 @@ public class SettingFragment extends Fragment {
                         firebaseStorageRef.child("Avatar_" + model.getCurrentUser().getEmail()).putFile(imageUri);
                         model.getCurrentUser().setAvatar("Avatar_" + model.getCurrentUser().getEmail());
                         firebaseFirestore.collection("user").document(model.getCurrentUserId()).set(model.getCurrentUser());
+                        firebaseStorageRef.child("none_"+model.getCurrentUser().getEmail()).delete();
                     }
                 });
                 builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -137,6 +138,7 @@ public class SettingFragment extends Fragment {
                 alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog) {
+                        //TODO Добавить значок загрузки
                         firebaseStorageRef.child(model.getCurrentUser().getAvatar()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
                             public void onSuccess(Uri uri) {

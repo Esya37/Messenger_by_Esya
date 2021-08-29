@@ -33,7 +33,7 @@
             android:background="@drawable/input_message_field"
             android:ems="10"
             android:hint="@string/enter_message"
-            android:inputType="textPersonName"
+            android:inputType="textCapSentences"
             android:paddingTop="7dp"
             android:paddingBottom="7dp"
             android:textSize="20sp"

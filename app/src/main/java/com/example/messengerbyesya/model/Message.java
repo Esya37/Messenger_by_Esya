@@ -1,7 +1,6 @@
 package com.example.messengerbyesya.model;
 
 import com.google.firebase.firestore.Exclude;
-import com.google.firebase.firestore.IgnoreExtraProperties;
 
 import java.util.Date;
 

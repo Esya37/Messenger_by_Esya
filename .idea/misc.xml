@@ -3,12 +3,19 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/authentification_button.xml" value="0.21041666666666667" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/authentification_button_color.xml" value="0.21041666666666667" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/delete_avatar_button_color.xml" value="0.21041666666666667" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/input_meesage_field.xml" value="0.22135416666666666" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/message_background.xml" value="0.21041666666666667" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/message_current_user_background.xml" value="0.21041666666666667" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/send_button_text_color.xml" value="0.22135416666666666" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/activity_main.xml" value="0.22" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/change_avatar_dialog.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/change_name_dialog.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/change_password_dialog.xml" value="0.25" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/chat_current_user_recycler_view_item.xml" value="0.33" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/chat_other_users_recycler_view_item.xml" value="0.33" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/chat_recycler_view_item.xml" value="0.33" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/fragment_authentification.xml" value="0.20520833333333333" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/fragment_chat.xml" value="0.22" />

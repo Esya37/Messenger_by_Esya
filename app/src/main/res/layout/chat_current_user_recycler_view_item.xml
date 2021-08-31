@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/authentification_background">
+
+    <View
+        android:id="@+id/view2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="-10dp"
+        android:layout_marginTop="-5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="-5dp"
+        android:background="@drawable/message_current_user_background"
+        android:translationZ="-1dp"
+        app:layout_constraintBottom_toBottomOf="@+id/messageTextView2"
+        app:layout_constraintEnd_toStartOf="@+id/senderAvatarImageView2"
+        app:layout_constraintStart_toStartOf="@+id/timeTextView2"
+        app:layout_constraintTop_toTopOf="@+id/senderNameTextView2" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/senderAvatarImageView2"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintBottom_toBottomOf="@+id/messageTextView2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:shapeAppearanceOverlay="@style/image_view_style"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/senderNameTextView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="100dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toStartOf="@+id/senderAvatarImageView2"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Имя Фамилия" />
+
+    <TextView
+        android:id="@+id/messageTextView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="100dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="10dp"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toStartOf="@+id/senderAvatarImageView2"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/senderNameTextView2"
+        tools:text="fkjnbvd jfnbdlkjf nbdjfnbdjfnjdfn bojdfn bjfdndjfn bd;jfnb bidndfibndbufnidfnbdfnidjfnb dnbd fnbhidjfnb hidjfnb bhilnb hilkjdfnb inhdfhidgfnbihjgn biojegfn hiljgnbi kjgfnkhgb " />
+
+    <TextView
+        android:id="@+id/timeTextView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        tools:text="10:00:00"
+        android:textColor="@color/black"
+        android:translationY="-20dp"
+        app:layout_constraintEnd_toStartOf="@+id/verticalBarrier2"
+        app:layout_constraintTop_toBottomOf="@+id/messageTextView2" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/verticalBarrier2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="left"
+        app:constraint_referenced_ids="messageTextView2,senderNameTextView2"
+        tools:layout_editor_absoluteX="89dp"
+        tools:layout_editor_absoluteY="83dp" />
+</androidx.constraintlayout.widget.ConstraintLayout>

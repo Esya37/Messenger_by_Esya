@@ -5,7 +5,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.example.messengerbyesya.fragments.AuthentificationFragment;
 import com.example.messengerbyesya.fragments.LogInFragment;
 import com.example.messengerbyesya.fragments.RegistrationFragment;
 

@@ -30,5 +30,9 @@
     <string name="no">Нет</string>
     <string name="your_current_avatar">Ваш текущий аватар:</string>
     <string name="upload_from_device">Загрузить с устройства</string>
+    <string name="or">Или</string>
+    <string name="insert_link_to_photo_hint">Вставьте ссылку на фото</string>
+    <string name="upload_with_link">Загрузить по ссылке</string>
+    <string name="avatar">Avatar</string>
 
 </resources>

@@ -1,40 +1,24 @@
 package com.example.messengerbyesya;
 
 import android.app.Activity;
-import android.app.Instrumentation;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Base64;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.example.messengerbyesya.model.User;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-
-import java.io.ByteArrayOutputStream;
-import java.util.regex.Pattern;
 
 public class Dialogs {
 
@@ -42,7 +26,7 @@ public class Dialogs {
         changeName,
         changePassword,
         changeAvatar,
-        deleteAvatar;
+        deleteAvatar
     }
 
     private View inflatedView;
@@ -51,10 +35,11 @@ public class Dialogs {
     private EditText newPasswordEditText;
     private EditText newPasswordRepeatedEditText;
     private String[] name;
-    private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-    private FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
-    private FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
-    private StorageReference firebaseStorageRef = firebaseStorage.getReferenceFromUrl("gs://messenger-by-esya.appspot.com/");
+    private final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+    private final FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
+    private final FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
+    private final StorageReference firebaseStorageRef = firebaseStorage.getReferenceFromUrl("gs://messenger-by-esya.appspot.com/");
+    private ProgressDialog pd;
 
     public AlertDialog getDialog(Activity activity, DialogType dialogType, User currentUser, String currentUserId) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
@@ -68,45 +53,36 @@ public class Dialogs {
                 name = new String[2];
                 builder.setView(inflatedView);
                 builder.setPositiveButton(R.string.accept, null);
-                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
+                builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
                 alertDialog = builder.create();
-                alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                    @Override
-                    public void onShow(DialogInterface dialog) {
-                        alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                if (changeNameEditText.getText().toString().split(" ").length != 2) {
-                                    changeNameEditText.setError("Имя должно состоять из двух слов");
-                                    return;
-                                }
-                                name = changeNameEditText.getText().toString().split(" ");
-                                if (Character.isLowerCase(name[0].charAt(0)) || (Character.isLowerCase(name[1].charAt(0)))) {
-                                    changeNameEditText.setError("Имя и фамилия должны начинаться с заглавной буквы");
-                                    return;
-                                }
-                                for (int i = 0; i < changeNameEditText.getText().toString().length(); i++) {
-                                    if (!((Character.UnicodeBlock.of(changeNameEditText.getText().toString().charAt(i)).equals(Character.UnicodeBlock.CYRILLIC)) || Character.isSpaceChar(changeNameEditText.getText().toString().charAt(i)))) {
-                                        changeNameEditText.setError("Имя и фамилия должны содержать только буквы русского алфавита");
-                                        return;
-                                    }
-                                }
-                                changeNameEditText.setError(null);
-                                if (currentUser.getAvatar().equals("none") || currentUser.getAvatar().equals("none_" + currentUser.getEmail())) {
-                                    currentUser.setAvatar("none");
-                                }
-                                currentUser.setName(changeNameEditText.getText().toString());
-                                firebaseFirestore.collection("user").document(currentUserId).set(currentUser);
-                                dialog.dismiss();
-                            }
-                        });
+                alertDialog.setOnShowListener(dialog -> alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
+                    if(!(hasConnection(v.getContext()))){
+                        Toast.makeText(v.getContext(), "Check your Internet connection", Toast.LENGTH_SHORT).show();
+                        return;
                     }
-                });
+                    if (changeNameEditText.getText().toString().split(" ").length != 2) {
+                        changeNameEditText.setError("Имя должно состоять из двух слов");
+                        return;
+                    }
+                    name = changeNameEditText.getText().toString().split(" ");
+                    if (Character.isLowerCase(name[0].charAt(0)) || (Character.isLowerCase(name[1].charAt(0)))) {
+                        changeNameEditText.setError("Имя и фамилия должны начинаться с заглавной буквы");
+                        return;
+                    }
+                    for (int i = 0; i < changeNameEditText.getText().toString().length(); i++) {
+                        if (!((Character.UnicodeBlock.of(changeNameEditText.getText().toString().charAt(i)).equals(Character.UnicodeBlock.CYRILLIC)) || Character.isSpaceChar(changeNameEditText.getText().toString().charAt(i)))) {
+                            changeNameEditText.setError("Имя и фамилия должны содержать только буквы русского алфавита");
+                            return;
+                        }
+                    }
+                    changeNameEditText.setError(null);
+                    if (currentUser.getAvatar().equals("none") || currentUser.getAvatar().equals("none_" + currentUser.getEmail())) {
+                        currentUser.setAvatar("none");
+                    }
+                    currentUser.setName(changeNameEditText.getText().toString());
+                    firebaseFirestore.collection("user").document(currentUserId).set(currentUser);
+                    dialog.dismiss();
+                }));
                 return alertDialog;
             case changePassword:
                 inflatedView = activity.getLayoutInflater().inflate(R.layout.change_password_dialog, null);
@@ -117,64 +93,55 @@ public class Dialogs {
 
                 builder.setView(inflatedView);
                 builder.setPositiveButton(R.string.accept, null);
-                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
+                builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
                 alertDialog = builder.create();
-                alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                    @Override
-                    public void onShow(DialogInterface dialog) {
-                        alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                //TODO Проверить наличие подключение к Интернету
-                                if (newPasswordEditText.getText().toString().length() < 6) {
-                                    newPasswordEditText.setError("Password length must be 6 characters or more");
-                                    return;
-                                } else {
-                                    newPasswordEditText.setError(null);
-                                }
-                                if (!(newPasswordEditText.getText().toString().equals(newPasswordRepeatedEditText.getText().toString()))) {
-                                    newPasswordEditText.setError("Password and repeated password is not equals");
-                                    newPasswordRepeatedEditText.setError("Password and repeated password is not equals");
-                                    return;
-                                } else {
-                                    newPasswordEditText.setError(null);
-                                    newPasswordRepeatedEditText.setError(null);
-                                }
-
-                                firebaseAuth.getCurrentUser().reauthenticate(EmailAuthProvider.getCredential(currentUser.getEmail(), oldPasswordEditText.getText().toString())).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()) {
-                                            oldPasswordEditText.setError(null);
-                                            firebaseAuth.getCurrentUser().updatePassword(newPasswordEditText.getText().toString()).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    //TODO Добавить значок загрузки
-                                                    currentUser.setPassword(newPasswordEditText.getText().toString());
-                                                    firebaseFirestore.collection("user").document(currentUserId).set(currentUser);
-                                                    dialog.dismiss();
-                                                }
-                                            });
-                                        } else {
-                                            try {
-                                                throw task.getException();
-                                            } catch (FirebaseAuthInvalidCredentialsException ex) {
-                                                oldPasswordEditText.setError("Incorrect password");
-                                            } catch (Exception ex) {
-                                                oldPasswordEditText.setError(task.getException().toString());
-                                            }
-                                        }
-                                    }
-                                });
-                            }
-                        });
+                alertDialog.setOnShowListener(dialog -> alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
+                    if(!(hasConnection(v.getContext()))){
+                        Toast.makeText(v.getContext(), "Check your Internet connection", Toast.LENGTH_SHORT).show();
+                        return;
                     }
-                });
+                    if (newPasswordEditText.getText().toString().length() < 6) {
+                        newPasswordEditText.setError("Password length must be 6 characters or more");
+                        return;
+                    } else {
+                        newPasswordEditText.setError(null);
+                    }
+                    if (!(newPasswordEditText.getText().toString().equals(newPasswordRepeatedEditText.getText().toString()))) {
+                        newPasswordEditText.setError("Password and repeated password is not equals");
+                        newPasswordRepeatedEditText.setError("Password and repeated password is not equals");
+                        return;
+                    } else {
+                        newPasswordEditText.setError(null);
+                        newPasswordRepeatedEditText.setError(null);
+                    }
+
+                    pd = new ProgressDialog(v.getContext());
+                    pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                    pd.setCancelable(false);
+                    pd.setMessage("Loading...");
+                    pd.show();
+
+                    firebaseAuth.getCurrentUser().reauthenticate(EmailAuthProvider.getCredential(currentUser.getEmail(), oldPasswordEditText.getText().toString())).addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            oldPasswordEditText.setError(null);
+                            firebaseAuth.getCurrentUser().updatePassword(newPasswordEditText.getText().toString()).addOnCompleteListener(task1 -> {
+                                currentUser.setPassword(newPasswordEditText.getText().toString());
+                                firebaseFirestore.collection("user").document(currentUserId).set(currentUser);
+                                pd.dismiss();
+                                dialog.dismiss();
+                            });
+                        } else {
+                            try {
+                                throw task.getException();
+                            } catch (FirebaseAuthInvalidCredentialsException ex) {
+                                oldPasswordEditText.setError("Incorrect password");
+                            } catch (Exception ex) {
+                                oldPasswordEditText.setError(task.getException().toString());
+                            }
+                            pd.dismiss();
+                        }
+                    });
+                }));
                 return alertDialog;
             case changeAvatar:
 
@@ -182,29 +149,42 @@ public class Dialogs {
                 return builder.create();
             case deleteAvatar:
                 builder.setMessage(R.string.delete_avatar_confirm);
-                builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
+                builder.setNegativeButton(R.string.no, (dialog, which) -> dialog.cancel());
+                builder.setPositiveButton(R.string.yes, null);
+                alertDialog = builder.create();
+                alertDialog.setOnShowListener(dialog -> alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
+                    if(!(hasConnection(v.getContext()))){
+                        Toast.makeText(v.getContext(), "Check your Internet connection", Toast.LENGTH_SHORT).show();
+                        return;
                     }
-                });
-                builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (currentUser.getAvatar().equals("none_" + currentUser.getEmail())) {
-                            firebaseStorageRef.child("none_" + currentUser.getEmail()).delete();
-                        } else if (currentUser.getAvatar().equals("Avatar_" + currentUser.getEmail())) {
-                            firebaseStorageRef.child("Avatar_" + currentUser.getEmail()).delete();
-                        }
-                        currentUser.setAvatar("none");
-                        firebaseFirestore.collection("user").document(currentUserId).set(currentUser);
+                    if (currentUser.getAvatar().equals("none_" + currentUser.getEmail())) {
+                        firebaseStorageRef.child("none_" + currentUser.getEmail()).delete();
+                    } else if (currentUser.getAvatar().equals("Avatar_" + currentUser.getEmail())) {
+                        firebaseStorageRef.child("Avatar_" + currentUser.getEmail()).delete();
+                    }
+                    currentUser.setAvatar("none");
+                    firebaseFirestore.collection("user").document(currentUserId).set(currentUser);
+                    dialog.dismiss();
+                }));
 
-                    }
-                });
-                return builder.create();
+                return alertDialog;
             default:
                 return null;
         }
+    }
+
+    public static boolean hasConnection(final Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo wifiInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        if (wifiInfo != null && wifiInfo.isConnected()) {
+            return true;
+        }
+        wifiInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        if (wifiInfo != null && wifiInfo.isConnected()) {
+            return true;
+        }
+        wifiInfo = cm.getActiveNetworkInfo();
+        return wifiInfo != null && wifiInfo.isConnected();
     }
 
 }

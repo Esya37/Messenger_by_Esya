@@ -18,17 +18,17 @@
         app:tabIndicatorColor="@color/white"
         app:tabSelectedTextColor="@color/white"
         app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget"
-        app:tabTextColor="@color/black">
+        app:tabTextColor="@color/authentification_text">
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Регистрация" />
+            tools:text="Регистрация" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Вход" />
+            tools:text="Вход" />
 
     </com.google.android.material.tabs.TabLayout>
 

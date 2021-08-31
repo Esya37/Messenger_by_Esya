@@ -1,17 +1,15 @@
 package com.example.messengerbyesya.fragments;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.viewpager2.widget.ViewPager2;
-
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.SearchView;
 
 import com.example.messengerbyesya.R;
 import com.example.messengerbyesya.ViewPagerAdapter;
@@ -37,7 +35,7 @@ public class AuthentificationFragment extends Fragment {
     private View inflatedView;
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
-    private String[] tabNames = {"Регистрация", "Вход"};
+    private final String[] tabNames = {"Регистрация", "Вход"};
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

@@ -1,12 +1,6 @@
 package com.example.messengerbyesya.fragments;
 
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,11 +8,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.navigation.Navigation;
+
 import com.example.messengerbyesya.R;
 import com.example.messengerbyesya.model.User;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -42,7 +37,7 @@ public class RegistrationFragment extends BaseFragment {
     private EditText email;
     private EditText password;
     private EditText repeatedPassword;
-    private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+    private final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
 
     private String uid;
 
@@ -62,42 +57,44 @@ public class RegistrationFragment extends BaseFragment {
         repeatedPassword = inflatedView.findViewById(R.id.editTextTextPassword2Registration);
 
         submitButton = inflatedView.findViewById(R.id.registrationSubmitButton);
-        submitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(!hasConnection(getContext())){
-                    Toast.makeText(getContext(), "Check your Internet connection", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if (!(isEmailValid(email.getText().toString()))) {
-                    Toast.makeText(getContext(), "E-mail is not valid", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if (password.getText().toString().length() < 6) {
-                    Toast.makeText(getContext(), "Password length must be 6 characters or more", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if (!(password.getText().toString().equals(repeatedPassword.getText().toString()))) {
-                    Toast.makeText(getContext(), "Password and repeated password is not equals", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                firebaseAuth.createUserWithEmailAndPassword(email.getText().toString(), password.getText().toString())
-                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(getContext(), "Added new user", Toast.LENGTH_SHORT).show();
-                                    uid = firebaseAuth.getUid();
-
-                                    User user = new User(firebaseAuth.getCurrentUser().getEmail(), password.getText().toString(), "Пользователь № " + uid, "none");
-                                    FirebaseFirestore.getInstance().collection("user").add(user);
-
-                                    Navigation.findNavController(submitButton).navigate(R.id.action_authentificationFragment_to_chatFragment);
-                                }
-                            }
-                        });
+        submitButton.setOnClickListener(v -> {
+            if(!hasConnection(getContext())){
+                Toast.makeText(getContext(), "Check your Internet connection", Toast.LENGTH_SHORT).show();
+                return;
             }
+            if (!(isEmailValid(email.getText().toString()))) {
+                email.setError("E-mail недействителен");
+                return;
+            }else {
+                email.setError(null);
+            }
+            if (password.getText().toString().length() < 6) {
+                password.setError("Длина пароля должна быть 6 символов или более");
+                return;
+            } else {
+                password.setError(null);
+            }
+            if (!(password.getText().toString().equals(repeatedPassword.getText().toString()))) {
+                password.setError("Пароли не совпадают");
+                repeatedPassword.setError("Пароли не совпадают");
+                return;
+            } else {
+                password.setError(null);
+                repeatedPassword.setError(null);
+            }
+
+            firebaseAuth.createUserWithEmailAndPassword(email.getText().toString(), password.getText().toString())
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(getContext(), "Вы успешно зарегистрировались", Toast.LENGTH_SHORT).show();
+                            uid = firebaseAuth.getUid();
+
+                            User user = new User(firebaseAuth.getCurrentUser().getEmail(), password.getText().toString(), "Пользователь № " + uid, "none");
+                            FirebaseFirestore.getInstance().collection("user").add(user);
+
+                            Navigation.findNavController(submitButton).navigate(R.id.action_authentificationFragment_to_chatFragment);
+                        }
+                    });
         });
 
     }

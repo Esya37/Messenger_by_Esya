@@ -60,6 +60,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:background="@color/authentification_background"
         app:headerLayout="@layout/header_of_navigation_view"
+        app:itemTextColor="@color/white"
         app:menu="@menu/navigation_view_menu" />
 </androidx.drawerlayout.widget.DrawerLayout>

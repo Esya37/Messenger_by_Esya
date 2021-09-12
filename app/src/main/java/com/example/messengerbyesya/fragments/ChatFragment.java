@@ -150,6 +150,14 @@ public class ChatFragment extends Fragment {
             }
 
             messagesRecyclerView = inflatedView.findViewById(R.id.chatRecyclerView);
+
+            //TODO: Добавить float action button для выдвижения шторки меню
+            //Увеличение кэша прогружаемых item'ов
+            messagesRecyclerView.setItemViewCacheSize(10);
+            messagesRecyclerView.getRecycledViewPool().setMaxRecycledViews(1, 20);
+            messagesRecyclerView.getRecycledViewPool().setMaxRecycledViews(2, 20);
+
+
             LinearLayoutManager layoutManager = new LinearLayoutManager(inflatedView.getContext());
             layoutManager.setStackFromEnd(true);
             messagesRecyclerView.setLayoutManager(layoutManager);
@@ -208,13 +216,13 @@ public class ChatFragment extends Fragment {
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onDestroy() {
+        super.onDestroy();
         adapter.stopListening();
     }
 
     public void recyclerViewInitialization() {
-        Query query = firebaseFirestore.collection("message").orderBy("date").limitToLast(50);
+        Query query = firebaseFirestore.collection("message").orderBy("date");
 
         FirestoreRecyclerOptions<Message> options = new FirestoreRecyclerOptions.Builder<Message>().setQuery(query, snapshot -> {
             Message tempMessage = new Message();

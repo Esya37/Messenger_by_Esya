@@ -1,5 +1,6 @@
 package com.example.messengerbyesya.fragments;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,12 +11,14 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
+import com.example.messengerbyesya.MainActivityViewModel;
 import com.example.messengerbyesya.R;
-import com.example.messengerbyesya.model.User;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class RegistrationFragment extends BaseFragment {
 
@@ -37,9 +40,9 @@ public class RegistrationFragment extends BaseFragment {
     private EditText email;
     private EditText password;
     private EditText repeatedPassword;
-    private final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-
-    private String uid;
+    private MainActivityViewModel model;
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private ProgressDialog pd;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -52,20 +55,27 @@ public class RegistrationFragment extends BaseFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        model = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
+
         email = inflatedView.findViewById(R.id.editTextTextEmailAddressRegistration);
         password = inflatedView.findViewById(R.id.editTextTextPasswordRegistration);
         repeatedPassword = inflatedView.findViewById(R.id.editTextTextPassword2Registration);
 
+        pd = new ProgressDialog(getParentFragment().getContext());
+        pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        pd.setCancelable(false);
+        pd.setMessage("Loading...");
+
         submitButton = inflatedView.findViewById(R.id.registrationSubmitButton);
         submitButton.setOnClickListener(v -> {
-            if(!hasConnection(getContext())){
+            if (!hasConnection(getContext())) {
                 Toast.makeText(getContext(), "Check your Internet connection", Toast.LENGTH_SHORT).show();
                 return;
             }
             if (!(isEmailValid(email.getText().toString()))) {
                 email.setError("E-mail недействителен");
                 return;
-            }else {
+            } else {
                 email.setError(null);
             }
             if (password.getText().toString().length() < 6) {
@@ -83,20 +93,27 @@ public class RegistrationFragment extends BaseFragment {
                 repeatedPassword.setError(null);
             }
 
-            firebaseAuth.createUserWithEmailAndPassword(email.getText().toString(), password.getText().toString())
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(getContext(), "Вы успешно зарегистрировались", Toast.LENGTH_SHORT).show();
-                            uid = firebaseAuth.getUid();
+            pd.show();
+            executorService.execute(() -> {
+                String resultToastText = model.createUser(email.getText().toString(), password.getText().toString());
+                requireActivity().runOnUiThread(() -> {
+                    pd.dismiss();
+                    Toast.makeText(getContext(), resultToastText, Toast.LENGTH_SHORT).show();
+                    if(resultToastText.equals("Вы успешно зарегистрировались")){
+                        Navigation.findNavController(submitButton).navigate(R.id.action_authentificationFragment_to_chatFragment);
+                    }
+                });
+            });
 
-                            User user = new User(firebaseAuth.getCurrentUser().getEmail(), password.getText().toString(), "Пользователь № " + uid, "none");
-                            FirebaseFirestore.getInstance().collection("user").add(user);
 
-                            Navigation.findNavController(submitButton).navigate(R.id.action_authentificationFragment_to_chatFragment);
-                        }
-                    });
+
         });
 
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        executorService.shutdown();
+    }
 }

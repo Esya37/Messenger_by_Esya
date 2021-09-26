@@ -11,14 +11,13 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
 
 import com.example.messengerbyesya.model.User;
-import com.google.firebase.auth.EmailAuthProvider;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Dialogs {
 
@@ -35,15 +34,15 @@ public class Dialogs {
     private EditText newPasswordEditText;
     private EditText newPasswordRepeatedEditText;
     private String[] name;
-    private final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-    private final FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
-    private final FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
-    private final StorageReference firebaseStorageRef = firebaseStorage.getReferenceFromUrl("gs://messenger-by-esya.appspot.com/");
     private ProgressDialog pd;
+    private MainActivityViewModel model;
+    private ExecutorService executorService;
 
     public AlertDialog getDialog(Activity activity, DialogType dialogType, User currentUser, String currentUserId) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         AlertDialog alertDialog;
+
+        model = new ViewModelProvider((ViewModelStoreOwner) activity).get(MainActivityViewModel.class);
 
         switch (dialogType) {
             case changeName:
@@ -80,7 +79,7 @@ public class Dialogs {
                         currentUser.setAvatar("none");
                     }
                     currentUser.setName(changeNameEditText.getText().toString());
-                    firebaseFirestore.collection("user").document(currentUserId).set(currentUser);
+                    model.setUser(currentUser, currentUserId);
                     dialog.dismiss();
                 }));
                 return alertDialog;
@@ -121,26 +120,29 @@ public class Dialogs {
                     pd.setMessage("Loading...");
                     pd.show();
 
-                    firebaseAuth.getCurrentUser().reauthenticate(EmailAuthProvider.getCredential(currentUser.getEmail(), oldPasswordEditText.getText().toString())).addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            oldPasswordEditText.setError(null);
-                            firebaseAuth.getCurrentUser().updatePassword(newPasswordEditText.getText().toString()).addOnCompleteListener(task1 -> {
-                                currentUser.setPassword(newPasswordEditText.getText().toString());
-                                firebaseFirestore.collection("user").document(currentUserId).set(currentUser);
-                                pd.dismiss();
-                                dialog.dismiss();
-                            });
-                        } else {
-                            try {
-                                throw task.getException();
-                            } catch (FirebaseAuthInvalidCredentialsException ex) {
-                                oldPasswordEditText.setError("Incorrect password");
-                            } catch (Exception ex) {
-                                oldPasswordEditText.setError(task.getException().toString());
-                            }
+                    executorService = Executors.newSingleThreadExecutor();
+                    executorService.execute(() -> {
+                        String resultToastText = model.changePassword(model.getCurrentUser().getEmail(), oldPasswordEditText.getText().toString(), newPasswordEditText.getText().toString());
+                        activity.runOnUiThread(() -> {
                             pd.dismiss();
-                        }
+                            switch (resultToastText) {
+                                case "Пароль успешно изменен":
+                                    oldPasswordEditText.setError(null);
+                                    Toast.makeText(activity, resultToastText, Toast.LENGTH_SHORT).show();
+                                    dialog.dismiss();
+                                    break;
+                                case "Неверный пароль":
+                                    oldPasswordEditText.setError("Неверный пароль");
+                                    break;
+                                default:
+                                    Toast.makeText(activity, resultToastText, Toast.LENGTH_SHORT).show();
+                                    break;
+                            }
+                        });
                     });
+
+                    executorService.shutdown();
+
                 }));
                 return alertDialog;
             case changeAvatar:
@@ -157,13 +159,22 @@ public class Dialogs {
                         Toast.makeText(v.getContext(), "Check your Internet connection", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    if (currentUser.getAvatar().equals("none_" + currentUser.getEmail())) {
-                        firebaseStorageRef.child("none_" + currentUser.getEmail()).delete();
-                    } else if (currentUser.getAvatar().equals("Avatar_" + currentUser.getEmail())) {
-                        firebaseStorageRef.child("Avatar_" + currentUser.getEmail()).delete();
-                    }
+
+                    pd = new ProgressDialog(v.getContext());
+                    pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                    pd.setCancelable(false);
+                    pd.setMessage("Loading...");
+                    pd.show();
+
+                    model.deleteImage(currentUser.getAvatar()).addOnCompleteListener(task -> {
+                        if(task.isSuccessful()){
+                            pd.dismiss();
+                        } else {
+                            Toast.makeText(pd.getContext(), "Что-то пошло не так, попробуйте еще раз", Toast.LENGTH_LONG).show();
+                        }
+                    });
                     currentUser.setAvatar("none");
-                    firebaseFirestore.collection("user").document(currentUserId).set(currentUser);
+                    model.setUser(currentUser, currentUserId);
                     dialog.dismiss();
                 }));
 

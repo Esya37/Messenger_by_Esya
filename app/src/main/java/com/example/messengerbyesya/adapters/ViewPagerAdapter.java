@@ -1,4 +1,4 @@
-package com.example.messengerbyesya;
+package com.example.messengerbyesya.adapters;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;

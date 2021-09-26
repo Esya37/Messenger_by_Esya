@@ -4,11 +4,9 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,19 +25,8 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.messengerbyesya.Dialogs;
 import com.example.messengerbyesya.MainActivityViewModel;
 import com.example.messengerbyesya.R;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class SettingFragment extends BaseFragment {
 
@@ -75,14 +62,9 @@ public class SettingFragment extends BaseFragment {
     private EditText photoLinkEditText;
     private ImageView currentAvatarImageView;
     private Uri imageUri;
-    private final FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
-    private final FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
-    private final StorageReference firebaseStorageRef = firebaseStorage.getReferenceFromUrl("gs://messenger-by-esya.appspot.com/");
     private ActivityResultLauncher<Intent> someActivityResultLauncher;
     private AlertDialog alertDialog;
     private ProgressDialog pd;
-    private ExecutorService executorService;
-    private static Boolean isUsedGoogleOrYandexImages;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -129,23 +111,8 @@ public class SettingFragment extends BaseFragment {
                 } else {
                     pd.show();
                     photoLinkEditText.setError(null);
-                    final URL[] secondURL = {null};
-                    final String[] finalURL = {""};
-                    executorService = Executors.newSingleThreadExecutor();
-                    try {
-                        executorService.submit(() -> {
-                            try {
-                                finalURL[0] = getFinalURL(photoLinkEditText.getText().toString());
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            return null;
-                        }).get();
-                    } catch (ExecutionException | InterruptedException e) {
-                        e.printStackTrace();
-                    }
 
-                    Picasso.with(getContext()).load(finalURL[0]).into(currentAvatarImageView, new Callback() {
+                    Picasso.with(getContext()).load(model.getFinalImageUri(photoLinkEditText.getText().toString())).into(currentAvatarImageView, new Callback() {
                         @Override
                         public void onSuccess() {
                             pd.dismiss();
@@ -155,7 +122,6 @@ public class SettingFragment extends BaseFragment {
                         @Override
                         public void onError() {
                             pd.dismiss();
-                            Log.d("qwe", "qwe");
                         }
                     });
                 }
@@ -175,7 +141,8 @@ public class SettingFragment extends BaseFragment {
                 pd.setCancelable(false);
                 pd.setMessage("Loading...");
                 pd.show();
-                firebaseStorageRef.child(model.getCurrentUser().getAvatar()).getDownloadUrl().addOnSuccessListener(uri -> Picasso.with(getContext()).load(uri).into(currentAvatarImageView, new Callback() {
+
+                model.getAvatar(model.getCurrentUser()).addOnSuccessListener(uri -> Picasso.with(getContext()).load(uri).into(currentAvatarImageView, new Callback() {
                     @Override
                     public void onSuccess() {
                         pd.dismiss();
@@ -183,11 +150,11 @@ public class SettingFragment extends BaseFragment {
 
                     @Override
                     public void onError() {
-                        if (isUsedGoogleOrYandexImages) {
-                            Toast.makeText(getContext(), "Что-то пошло не так:( Попробуйте вставить другую ссылку или сохраните изображение в память устройства", Toast.LENGTH_LONG).show();
-                        } else {
-                            Toast.makeText(getContext(), "Что-то пошло не так:( Попробуйте вставить ссылку из Google Картинки или Яндекс.Картинки", Toast.LENGTH_LONG).show();
-                        }
+//                        if (isUsedGoogleOrYandexImages) {
+                        Toast.makeText(getContext(), "Что-то пошло не так:( Попробуйте вставить другую ссылку или сохраните изображение в память устройства", Toast.LENGTH_LONG).show();
+//                        } else {
+//                            Toast.makeText(getContext(), "Что-то пошло не так:( Попробуйте вставить ссылку из Google Картинки или Яндекс.Картинки", Toast.LENGTH_LONG).show();
+//                        }
                     }
                 }));
 
@@ -198,15 +165,8 @@ public class SettingFragment extends BaseFragment {
                     }
                     currentAvatarImageView.setDrawingCacheEnabled(true);
                     currentAvatarImageView.buildDrawingCache();
-                    Bitmap bitmap = ((BitmapDrawable) currentAvatarImageView.getDrawable()).getBitmap();
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                    byte[] data = baos.toByteArray();
-                    firebaseStorageRef.child("Avatar_" + model.getCurrentUser().getEmail()).putBytes(data);
-                    //firebaseStorageRef.child("Avatar_" + model.getCurrentUser().getEmail()).putFile(imageUri);
-                    model.getCurrentUser().setAvatar("Avatar_" + model.getCurrentUser().getEmail());
-                    firebaseFirestore.collection("user").document(model.getCurrentUserId()).set(model.getCurrentUser());
-                    firebaseStorageRef.child("none_" + model.getCurrentUser().getEmail()).delete();
+                    pd.show();
+                    model.uploadAvatar(((BitmapDrawable) currentAvatarImageView.getDrawable()).getBitmap(), model.getCurrentUser(), model.getCurrentUserId(), pd);
                     dialog.dismiss();
                 });
             });
@@ -224,59 +184,5 @@ public class SettingFragment extends BaseFragment {
 
     }
 
-    private static String getFinalURL(String url) throws IOException {
-        HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
-        con.setInstanceFollowRedirects(false);
-        con.connect();
-        con.getInputStream();
 
-        if (con.getResponseCode() == HttpURLConnection.HTTP_MOVED_PERM || con.getResponseCode() == HttpURLConnection.HTTP_MOVED_TEMP) {
-            String redirectUrl = con.getHeaderField("Location");
-            return getFinalURL(redirectUrl);
-        }
-        isUsedGoogleOrYandexImages = false;
-        if (url.contains("https://yandex.ru/images/")) {
-            isUsedGoogleOrYandexImages = true;
-            url = getUrlFromYandexImages(url);
-        }
-        if (url.contains("https://www.google.ru/imgres")) {
-            isUsedGoogleOrYandexImages = true;
-            url = getUrlFromGoogleImages(url);
-        }
-        return url;
-    }
-
-    private static String getUrlFromGoogleImages(String url) {
-        url = url.substring(url.indexOf("?") + 1);
-        for (String string : url.split("&")) {
-            if (string.contains("imgurl")) {
-                url = string.substring(7);
-                break;
-            }
-        }
-        return url;
-    }
-
-    private static String getUrlFromYandexImages(String url) {
-        for (String string : url.split("&")) {
-            if (string.contains("img_url")) {
-                url = string.substring(8);
-                break;
-            }
-        }
-        url = url.replace("%3A", ":");
-        url = url.replace("%2F", "/");
-        url = url.replace("%3F", "?");
-        url = url.replace("%26", "&");
-        url = url.replace("%3D", "=");
-        return url;
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (executorService != null) {
-            executorService.shutdown();
-        }
-    }
 }

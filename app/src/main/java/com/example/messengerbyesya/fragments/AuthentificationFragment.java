@@ -8,14 +8,15 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.messengerbyesya.MainActivityViewModel;
 import com.example.messengerbyesya.R;
-import com.example.messengerbyesya.ViewPagerAdapter;
+import com.example.messengerbyesya.adapters.ViewPagerAdapter;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-import com.google.firebase.auth.FirebaseAuth;
 
 public class AuthentificationFragment extends Fragment {
 
@@ -36,6 +37,7 @@ public class AuthentificationFragment extends Fragment {
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
     private final String[] tabNames = {"Регистрация", "Вход"};
+    private MainActivityViewModel model;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -48,7 +50,9 @@ public class AuthentificationFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+        model = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
+
+        if (model.getCurrentFirebaseUser() != null) {
             Navigation.findNavController(inflatedView).navigate(R.id.action_authentificationFragment_to_chatFragment);
         }
 

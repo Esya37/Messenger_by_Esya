@@ -1,5 +1,6 @@
 package com.example.messengerbyesya.fragments;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,12 +11,14 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
+import com.example.messengerbyesya.MainActivityViewModel;
 import com.example.messengerbyesya.R;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class LogInFragment extends BaseFragment {
 
@@ -36,7 +39,9 @@ public class LogInFragment extends BaseFragment {
     private Button submitButton;
     private EditText email;
     private EditText password;
-    private final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+    private MainActivityViewModel model;
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private ProgressDialog pd;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -49,43 +54,58 @@ public class LogInFragment extends BaseFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        model = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
+
         email = inflatedView.findViewById(R.id.editTextTextEmailAddressLogIn);
         password = inflatedView.findViewById(R.id.editTextTextPasswordLogIn);
 
+        pd = new ProgressDialog(getParentFragment().getContext());
+        pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        pd.setCancelable(false);
+        pd.setMessage("Loading...");
+
         submitButton = inflatedView.findViewById(R.id.logInSubmitButton);
         submitButton.setOnClickListener(v -> {
-            if(!hasConnection(getContext())){
+            if (!hasConnection(getContext())) {
                 Toast.makeText(getContext(), "Check your Internet connection", Toast.LENGTH_SHORT).show();
                 return;
             }
             if (!(isEmailValid(email.getText().toString()))) {
                 email.setError("E-mail недействителен");
                 return;
-            }else {
+            } else {
                 email.setError(null);
             }
 
-            firebaseAuth.signInWithEmailAndPassword(email.getText().toString(), password.getText().toString())
-                    .addOnCompleteListener(task -> {
-                        email.setError(null);
-                        password.setError(null);
-                        if (task.isSuccessful()) {
-                            Toast.makeText(getContext(), "Вы успешно вошли в аккаунт", Toast.LENGTH_SHORT).show();
+            pd.show();
+            executorService.execute(() -> {
+                String resultToastText = model.signInWithEmailAndPassword(email.getText().toString(), password.getText().toString());
+                requireActivity().runOnUiThread(() -> {
+                    pd.dismiss();
+                    switch (resultToastText) {
+                        case "Вы успешно вошли в аккаунт":
+                            Toast.makeText(getContext(), resultToastText, Toast.LENGTH_SHORT).show();
                             Navigation.findNavController(submitButton).navigate(R.id.action_authentificationFragment_to_chatFragment);
-                        } else {
-                            try {
-                                throw task.getException();
-                            } catch (FirebaseAuthInvalidCredentialsException ex) {
-                                password.setError("Неправильный пароль");
-                            } catch (FirebaseAuthInvalidUserException ex) {
-                                email.setError("Неправильный e-mail");
-                            } catch (Exception ex) {
-                                Toast.makeText(getContext(), task.getException().toString(), Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
+                            break;
+                        case "Неправильный e-mail":
+                            email.setError("Неправильный e-mail");
+                            break;
+                        case "Неправильный пароль":
+                            password.setError("Неправильный пароль");
+                            break;
+                        default:
+                            Toast.makeText(getContext(), resultToastText, Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                });
+            });
+
         });
     }
 
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        executorService.shutdown();
+    }
 }

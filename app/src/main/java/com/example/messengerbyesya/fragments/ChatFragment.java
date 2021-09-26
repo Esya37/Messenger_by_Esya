@@ -1,6 +1,5 @@
 package com.example.messengerbyesya.fragments;
 
-import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -12,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
@@ -20,27 +20,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.messengerbyesya.MainActivityViewModel;
 import com.example.messengerbyesya.R;
+import com.example.messengerbyesya.adapters.RecyclerViewAdapter;
 import com.example.messengerbyesya.model.Message;
 import com.example.messengerbyesya.model.User;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.Timestamp;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
-import java.io.ByteArrayOutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
 import java.util.Random;
 
 public class ChatFragment extends Fragment {
@@ -64,18 +53,15 @@ public class ChatFragment extends Fragment {
     private ImageView avatarImageView;
     private NavigationView navigationView;
     private View header;
-    private final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-    private final FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
-    private final FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
-    private final StorageReference firebaseStorageRef = firebaseStorage.getReferenceFromUrl("gs://messenger-by-esya.appspot.com/");
     private Random random;
     private RecyclerView messagesRecyclerView;
     private FirestoreRecyclerAdapter adapter;
-    private Timestamp timestamp;
     private Button sendMessageButton;
+    private FloatingActionButton openNavigationViewButton;
+    private DrawerLayout drawerLayout;
     private TextView messageTextView;
-    private Date tempDate;
-    private final Calendar dateNowCalendar = new GregorianCalendar();
+    private final RecyclerViewAdapter recyclerViewAdapter = new RecyclerViewAdapter();
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -97,25 +83,22 @@ public class ChatFragment extends Fragment {
 
         random = new Random();
 
-        firebaseFirestore.collection("user").whereEqualTo("email", firebaseAuth.getCurrentUser().getEmail()).get().addOnSuccessListener(queryDocumentSnapshots -> {
+        model.getCurrentUserFromDB(model.getCurrentFirebaseUser().getEmail()).addOnSuccessListener(queryDocumentSnapshots -> {
             model.setCurrentUser(queryDocumentSnapshots.getDocuments().get(0).toObject(User.class));
             model.setCurrentUserId(queryDocumentSnapshots.getDocuments().get(0).getId());
             nameTextView.setText(model.getCurrentUser().getName());
             if (model.getCurrentUser().getAvatar().equals("none")) {
                 if (model.getCurrentUser().getName().split(" ").length > 2) {
                     model.getCurrentUser().setAvatar("none_" + model.getCurrentUser().getEmail());
-                    firebaseFirestore.collection("user").document(model.getCurrentUserId()).set(model.getCurrentUser());
+                    model.setUser(model.getCurrentUser(), model.getCurrentUserId());
+                    //firebaseFirestore.collection("user").document(model.getCurrentUserId()).set(model.getCurrentUser());
 
                     Picasso.with(getContext()).load("https://eu.ui-avatars.com/api/?name=" + model.getCurrentUser().getName().split(" ")[2] + "&size=512?&background=" + generateRandomColorHex()).into(avatarImageView, new Callback() {
                         @Override
                         public void onSuccess() {
                             avatarImageView.setDrawingCacheEnabled(true);
                             avatarImageView.buildDrawingCache();
-                            Bitmap bitmap = ((BitmapDrawable) avatarImageView.getDrawable()).getBitmap();
-                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                            byte[] data = baos.toByteArray();
-                            firebaseStorageRef.child("none_" + model.getCurrentUser().getEmail()).putBytes(data);
+                            model.uploadTempAvatar(((BitmapDrawable) avatarImageView.getDrawable()).getBitmap(), model.getCurrentUser());
                         }
 
                         @Override
@@ -126,17 +109,14 @@ public class ChatFragment extends Fragment {
 
                 } else {
                     model.getCurrentUser().setAvatar("none_" + model.getCurrentUser().getEmail());
-                    firebaseFirestore.collection("user").document(model.getCurrentUserId()).set(model.getCurrentUser());
+                    model.setUser(model.getCurrentUser(), model.getCurrentUserId());
+                    // firebaseFirestore.collection("user").document(model.getCurrentUserId()).set(model.getCurrentUser());
                     Picasso.with(getContext()).load("https://eu.ui-avatars.com/api/?name=" + model.getCurrentUser().getName().split(" ")[0] + "%20" + model.getCurrentUser().getName().split(" ")[1] + "&size=512?&background=" + generateRandomColorHex()).into(avatarImageView, new Callback() {
                         @Override
                         public void onSuccess() {
                             avatarImageView.setDrawingCacheEnabled(true);
                             avatarImageView.buildDrawingCache();
-                            Bitmap bitmap = ((BitmapDrawable) avatarImageView.getDrawable()).getBitmap();
-                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                            byte[] data = baos.toByteArray();
-                            firebaseStorageRef.child("none_" + model.getCurrentUser().getEmail()).putBytes(data);
+                            model.uploadTempAvatar(((BitmapDrawable) avatarImageView.getDrawable()).getBitmap(), model.getCurrentUser());
                         }
 
                         @Override
@@ -146,7 +126,7 @@ public class ChatFragment extends Fragment {
                     });
                 }
             } else {
-                firebaseStorageRef.child(model.getCurrentUser().getAvatar()).getDownloadUrl().addOnSuccessListener(uri -> Picasso.with(getContext()).load(uri).into(avatarImageView));
+                model.getAvatar(model.getCurrentUser()).addOnSuccessListener(uri -> Picasso.with(getContext()).load(uri).into(avatarImageView));
             }
 
             messagesRecyclerView = inflatedView.findViewById(R.id.chatRecyclerView);
@@ -162,27 +142,8 @@ public class ChatFragment extends Fragment {
             layoutManager.setStackFromEnd(true);
             messagesRecyclerView.setLayoutManager(layoutManager);
 
-
             recyclerViewInitialization();
 
-            firebaseFirestore.collection("message").orderBy("date").addSnapshotListener((value, error) -> {
-                if (value != null) {
-                    for (DocumentChange document : value.getDocumentChanges()) {
-                        Message tempMessage = new Message();
-                        timestamp = (Timestamp) document.getDocument().get("date");
-                        tempMessage.setDate(timestamp.toDate());
-                        tempMessage.setText((String) document.getDocument().get("text"));
-                        firebaseFirestore.collection("user").whereEqualTo("email", document.getDocument().get("sender_email")).get().addOnSuccessListener(queryDocumentSnapshots1 -> {
-                            User tempUser = new User();
-                            tempUser = queryDocumentSnapshots1.getDocuments().get(0).toObject(User.class);
-                            tempMessage.setSender(tempUser);
-                            model.addMessage(tempMessage);
-                            messagesRecyclerView.smoothScrollToPosition(adapter.getItemCount());
-                            //adapter.notifyItemInserted(model.getMessages().size() - 1);
-                        });
-                    }
-                }
-            });
 
         });
 
@@ -192,7 +153,7 @@ public class ChatFragment extends Fragment {
                     Navigation.findNavController(inflatedView).navigate(R.id.action_chatFragment_to_settingFragment);
                     break;
                 case R.id.logOut:
-                    firebaseAuth.signOut();
+                    model.signOut();
                     Navigation.findNavController(inflatedView).navigate(R.id.action_chatFragment_to_authentificationFragment);
                     break;
             }
@@ -203,10 +164,14 @@ public class ChatFragment extends Fragment {
         sendMessageButton = inflatedView.findViewById(R.id.sendMessageButton);
         sendMessageButton.setOnClickListener(v -> {
             if (!(messageTextView.getText().toString().isEmpty())) {
-                firebaseFirestore.collection("message").add(new Message(messageTextView.getText().toString(), new Date(), model.getCurrentUser().getEmail()));
+                model.sendMessage(new Message(messageTextView.getText().toString(), new Date(), model.getCurrentUser().getEmail()));
                 messageTextView.setText("");
             }
         });
+
+        drawerLayout = inflatedView.findViewById(R.id.drawer_layout);
+        openNavigationViewButton = inflatedView.findViewById(R.id.openNavigationViewButton);
+        openNavigationViewButton.setOnClickListener(view1 -> drawerLayout.open());
 
     }
 
@@ -222,113 +187,15 @@ public class ChatFragment extends Fragment {
     }
 
     public void recyclerViewInitialization() {
-        Query query = firebaseFirestore.collection("message").orderBy("date");
 
-        FirestoreRecyclerOptions<Message> options = new FirestoreRecyclerOptions.Builder<Message>().setQuery(query, snapshot -> {
-            Message tempMessage = new Message();
-            timestamp = (Timestamp) snapshot.get("date");
-            tempMessage.setDate(timestamp.toDate());
-            tempMessage.setText((String) snapshot.get("text"));
-            tempMessage.setSender_email((String) snapshot.get("sender_email"));
+        adapter = recyclerViewAdapter.getAdapter(adapter, model.getCurrentUser().getEmail());
 
-            return tempMessage;
-        }).build();
-
-        adapter = new FirestoreRecyclerAdapter<Message, RecyclerView.ViewHolder>(options) {
-
-            private static final int MESSAGE_FROM_CURRENT_USER_TYPE = 1;
-            private static final int MESSAGE_FROM_OTHER_USERS_TYPE = 2;
-
+        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
-            protected void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, @NonNull Message message) {
-                switch (holder.getItemViewType()){
-                    case MESSAGE_FROM_CURRENT_USER_TYPE:
-                        onBindViewHolderCurrentUser((CurrentUserViewHolder) holder, position, message);
-                        break;
-                    case MESSAGE_FROM_OTHER_USERS_TYPE:
-                        onBindViewHolderOtherUsers((OtherUsersViewHolder) holder, position, message);
-                        break;
-                }
-
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                messagesRecyclerView.smoothScrollToPosition(positionStart);
             }
-
-            private void onBindViewHolderOtherUsers(OtherUsersViewHolder holder, int position, Message message) {
-                holder.messageTextView.setText(message.getText());
-                holder.timeTextView.setText(message.getDate().toString());
-
-                tempDate = new Date();
-                tempDate.setTime(message.getDate().getTime());
-
-                dateNowCalendar.setTimeInMillis(new Date().getTime());
-                dateNowCalendar.set(Calendar.HOUR, 0);
-                dateNowCalendar.set(Calendar.MINUTE, 0);
-                dateNowCalendar.set(Calendar.SECOND, 0);
-
-                if (dateNowCalendar.getTime().before(tempDate)) {
-                    holder.timeTextView.setText(new SimpleDateFormat("HH:mm:ss", Locale.ENGLISH).format(tempDate));
-                } else {
-                    holder.timeTextView.setText(new SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH).format(tempDate));
-                }
-
-                firebaseFirestore.collection("user").whereEqualTo("email", message.getSender_email()).get().addOnSuccessListener(queryDocumentSnapshots -> {
-                    User tempUser = new User();
-                    tempUser = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
-                    message.setSender(tempUser);
-                    holder.senderNameTextView.setText(message.getSender().getName());
-                    firebaseStorageRef.child(message.getSender().getAvatar()).getDownloadUrl().addOnSuccessListener(uri -> Picasso.with(holder.senderAvatarImageView.getContext()).load(uri).resize(50, 50).centerCrop().into(holder.senderAvatarImageView));
-                });
-            }
-
-            private void onBindViewHolderCurrentUser(CurrentUserViewHolder holder, int position, Message message) {
-                holder.messageTextView.setText(message.getText());
-                holder.timeTextView.setText(message.getDate().toString());
-
-                tempDate = new Date();
-                tempDate.setTime(message.getDate().getTime());
-
-                dateNowCalendar.setTimeInMillis(new Date().getTime());
-                dateNowCalendar.set(Calendar.HOUR, 0);
-                dateNowCalendar.set(Calendar.MINUTE, 0);
-                dateNowCalendar.set(Calendar.SECOND, 0);
-
-                if (dateNowCalendar.getTime().before(tempDate)) {
-                    holder.timeTextView.setText(new SimpleDateFormat("HH:mm:ss", Locale.ENGLISH).format(tempDate));
-                } else {
-                    holder.timeTextView.setText(new SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH).format(tempDate));
-                }
-
-                firebaseFirestore.collection("user").whereEqualTo("email", message.getSender_email()).get().addOnSuccessListener(queryDocumentSnapshots -> {
-                    User tempUser = new User();
-                    tempUser = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
-                    message.setSender(tempUser);
-                    holder.senderNameTextView.setText(message.getSender().getName());
-                    firebaseStorageRef.child(message.getSender().getAvatar()).getDownloadUrl().addOnSuccessListener(uri -> Picasso.with(holder.senderAvatarImageView.getContext()).load(uri).resize(50, 50).centerCrop().into(holder.senderAvatarImageView));
-                });
-            }
-
-            @Override
-            public int getItemViewType(int position) {
-                if (getItem(position).getSender_email().equals(model.getCurrentUser().getEmail())) {
-                    return MESSAGE_FROM_CURRENT_USER_TYPE;
-                } else {
-                    return MESSAGE_FROM_OTHER_USERS_TYPE;
-                }
-            }
-
-            @Override
-            public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup group, int viewType) {
-
-                if (viewType == MESSAGE_FROM_CURRENT_USER_TYPE) {
-                    View view = LayoutInflater.from(group.getContext()).inflate(R.layout.chat_current_user_recycler_view_item, group, false);
-                    return new CurrentUserViewHolder(view);
-                } else if (viewType == MESSAGE_FROM_OTHER_USERS_TYPE) {
-                    View view = LayoutInflater.from(group.getContext()).inflate(R.layout.chat_other_users_recycler_view_item, group, false);
-                    return new OtherUsersViewHolder(view);
-                }
-
-                return null;
-            }
-        };
+        });
 
         messagesRecyclerView.setAdapter(adapter);
 
@@ -336,35 +203,5 @@ public class ChatFragment extends Fragment {
 
     }
 
-    public static class OtherUsersViewHolder extends RecyclerView.ViewHolder {
-        TextView senderNameTextView;
-        TextView messageTextView;
-        TextView timeTextView;
-        ImageView senderAvatarImageView;
 
-        OtherUsersViewHolder(View view) {
-            super(view);
-            senderNameTextView = view.findViewById(R.id.senderNameTextView);
-            messageTextView = view.findViewById(R.id.messageTextView);
-            timeTextView = view.findViewById(R.id.timeTextView);
-            senderAvatarImageView = view.findViewById(R.id.senderAvatarImageView);
-        }
-
-    }
-
-    public static class CurrentUserViewHolder extends RecyclerView.ViewHolder {
-        TextView senderNameTextView;
-        TextView messageTextView;
-        TextView timeTextView;
-        ImageView senderAvatarImageView;
-
-        CurrentUserViewHolder(View view) {
-            super(view);
-            senderNameTextView = view.findViewById(R.id.senderNameTextView2);
-            messageTextView = view.findViewById(R.id.messageTextView2);
-            timeTextView = view.findViewById(R.id.timeTextView2);
-            senderAvatarImageView = view.findViewById(R.id.senderAvatarImageView2);
-        }
-
-    }
 }

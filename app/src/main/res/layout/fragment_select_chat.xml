@@ -12,64 +12,45 @@
         android:layout_height="match_parent"
         android:background="@color/authentification_background">
 
-        <Button
-            android:id="@+id/sendMessageButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="20dp"
-            android:background="@android:color/transparent"
-            android:backgroundTint="@android:color/transparent"
-            android:text="@string/send"
-            android:textAllCaps="false"
-            android:textColor="@color/send_button_text_color"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <EditText
-            android:id="@+id/editTextMessage"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:background="@drawable/input_message_field"
-            android:ems="10"
-            android:hint="@string/enter_message"
-            android:inputType="textCapSentences"
-            android:paddingTop="7dp"
-            android:paddingBottom="7dp"
-            android:textSize="20sp"
-            app:layout_constraintBaseline_toBaselineOf="@+id/sendMessageButton"
-            app:layout_constraintEnd_toStartOf="@+id/sendMessageButton"
-            app:layout_constraintStart_toStartOf="parent" />
-
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/messagesRecyclerView"
+            android:id="@+id/allChatsRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginBottom="10dp"
-            app:layout_constraintBottom_toTopOf="@+id/editTextMessage"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/startNewDialogButton" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/openNavigationViewButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="50dp"
             android:clickable="true"
             android:src="@drawable/menu_hamburger_icon"
             app:backgroundTint="@android:color/transparent"
             app:borderWidth="0dp"
             app:elevation="0dp"
+            app:fabSize="auto"
             app:hoveredFocusedTranslationZ="0dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:maxImageSize="24dp"
             app:pressedTranslationZ="0dp" />
+
+        <Button
+            android:id="@+id/startNewDialogButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/authentification_button"
+            android:text="@string/start_new_dialog"
+            android:textAllCaps="false"
+            android:textColor="@drawable/authentification_button_color"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.navigation.NavigationView

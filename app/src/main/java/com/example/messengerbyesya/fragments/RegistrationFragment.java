@@ -16,7 +16,11 @@ import androidx.navigation.Navigation;
 
 import com.example.messengerbyesya.MainActivityViewModel;
 import com.example.messengerbyesya.R;
+import com.example.messengerbyesya.model.User;
+import com.example.messengerbyesya.services.Validation;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -72,26 +76,46 @@ public class RegistrationFragment extends BaseFragment {
                 Toast.makeText(getContext(), "Check your Internet connection", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (!(isEmailValid(email.getText().toString()))) {
-                email.setError("E-mail недействителен");
+
+            List<User> users = new ArrayList<>();
+            Validation validation = new Validation();
+            User tempUser = new User();
+            tempUser.setEmail("qwe@mail.com");
+            users.add(tempUser);
+            User tempUser1 = new User();
+            tempUser1.setEmail("qwe1@mail.com");
+            users.add(tempUser1);
+            User tempUser2 = new User();
+            tempUser2.setEmail("qwe2@mail.com");
+            users.add(tempUser2);
+
+            validation.setUsers(users);
+            if(!validation.fullValidation(email.getText().toString(), password.getText().toString(), repeatedPassword.getText().toString())){
+                password.setError("Введенные данные неверны");   //TODO: Убрать это убожество
                 return;
-            } else {
-                email.setError(null);
             }
-            if (password.getText().toString().length() < 6) {
-                password.setError("Длина пароля должна быть 6 символов или более");
-                return;
-            } else {
-                password.setError(null);
-            }
-            if (!(password.getText().toString().equals(repeatedPassword.getText().toString()))) {
-                password.setError("Пароли не совпадают");
-                repeatedPassword.setError("Пароли не совпадают");
-                return;
-            } else {
-                password.setError(null);
-                repeatedPassword.setError(null);
-            }
+
+
+//            if (!(isEmailValid(email.getText().toString()))) {
+//                email.setError("E-mail недействителен");
+//                return;
+//            } else {
+//                email.setError(null);
+//            }
+//            if (password.getText().toString().length() < 6) {
+//                password.setError("Длина пароля должна быть 6 символов или более");
+//                return;
+//            } else {
+//                password.setError(null);
+//            }
+//            if (!(password.getText().toString().equals(repeatedPassword.getText().toString()))) {
+//                password.setError("Пароли не совпадают");
+//                repeatedPassword.setError("Пароли не совпадают");
+//                return;
+//            } else {
+//                password.setError(null);
+//                repeatedPassword.setError(null);
+//            }
 
             pd.show();
             executorService.execute(() -> {
@@ -100,7 +124,7 @@ public class RegistrationFragment extends BaseFragment {
                     pd.dismiss();
                     Toast.makeText(getContext(), resultToastText, Toast.LENGTH_SHORT).show();
                     if(resultToastText.equals("Вы успешно зарегистрировались")){
-                        Navigation.findNavController(submitButton).navigate(R.id.action_authentificationFragment_to_chatFragment);
+                        Navigation.findNavController(submitButton).navigate(R.id.action_authentificationFragment_to_selectChatFragment);
                     }
                 });
             });

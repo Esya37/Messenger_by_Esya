@@ -2,26 +2,30 @@ package com.example.messengerbyesya.fragments;
 
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import com.example.messengerbyesya.MainActivityViewModel;
 import com.example.messengerbyesya.R;
-import com.example.messengerbyesya.adapters.MessagesRecyclerViewAdapter;
-import com.example.messengerbyesya.model.Message;
+import com.example.messengerbyesya.adapters.ChatsRecyclerViewAdapter;
+import com.example.messengerbyesya.model.Chat;
 import com.example.messengerbyesya.model.User;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -29,43 +33,37 @@ import com.google.android.material.navigation.NavigationView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
-import java.util.Date;
 import java.util.Random;
 
-public class ChatFragment extends Fragment {
+public class SelectChatFragment extends Fragment {
 
-    public ChatFragment() {
-        // Required empty public constructor
-    }
-
-    public static ChatFragment newInstance() {
-        return new ChatFragment();
+    public static SelectChatFragment newInstance() {
+        return new SelectChatFragment();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
     }
 
     private View inflatedView;
+    private RecyclerView allChatsRecyclerView;
+    private FirestoreRecyclerAdapter adapter;
+    private final ChatsRecyclerViewAdapter allChatsRecyclerViewAdapter = new ChatsRecyclerViewAdapter();
     private MainActivityViewModel model;
     private TextView nameTextView;
     private ImageView avatarImageView;
     private NavigationView navigationView;
     private View header;
     private Random random;
-    private RecyclerView messagesRecyclerView;
-    private FirestoreRecyclerAdapter adapter;
-    private Button sendMessageButton;
-    private FloatingActionButton openNavigationViewButton;
     private DrawerLayout drawerLayout;
-    private TextView messageTextView;
-    private final MessagesRecyclerViewAdapter recyclerViewAdapter = new MessagesRecyclerViewAdapter();
-
+    private FloatingActionButton openNavigationViewButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        inflatedView = inflater.inflate(R.layout.fragment_chat, container, false);
+        inflatedView = inflater.inflate(R.layout.fragment_select_chat, container, false);
+
         // Inflate the layout for this fragment
         return inflatedView;
     }
@@ -74,7 +72,7 @@ public class ChatFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        model = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
+        model = new ViewModelProvider(requireActivity()).get(MainActivityViewModel.class);
 
         //TODO: Попробовать вынести этот код в BaseFragment
 
@@ -85,7 +83,7 @@ public class ChatFragment extends Fragment {
 
         random = new Random();
 
-        model.getCurrentUserFromDB(model.getCurrentFirebaseUser().getEmail()).addOnSuccessListener(queryDocumentSnapshots -> { //TODO: Убрать все это?
+        model.getCurrentUserFromDB(model.getCurrentFirebaseUser().getEmail()).addOnSuccessListener(queryDocumentSnapshots -> {
             model.setCurrentUser(queryDocumentSnapshots.getDocuments().get(0).toObject(User.class));
             model.setCurrentUserId(queryDocumentSnapshots.getDocuments().get(0).getId());
             nameTextView.setText(model.getCurrentUser().getName());
@@ -131,54 +129,58 @@ public class ChatFragment extends Fragment {
                 model.getAvatar(model.getCurrentUser()).addOnSuccessListener(uri -> Picasso.with(getContext()).load(uri).into(avatarImageView));
             }
 
-            messagesRecyclerView = inflatedView.findViewById(R.id.messagesRecyclerView);
+            class onItemClickListenerClass implements ChatsRecyclerViewAdapter.ItemClickListener {
 
-            //Увеличение кэша прогружаемых item'ов
-            messagesRecyclerView.setItemViewCacheSize(10);
-            messagesRecyclerView.getRecycledViewPool().setMaxRecycledViews(1, 20);
-            messagesRecyclerView.getRecycledViewPool().setMaxRecycledViews(2, 20);
-
-
-            LinearLayoutManager layoutManager = new LinearLayoutManager(inflatedView.getContext());
-            layoutManager.setStackFromEnd(true);
-            messagesRecyclerView.setLayoutManager(layoutManager);
-
-            recyclerViewInitialization();
-
-
-        });
-
-        navigationView.setNavigationItemSelectedListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.settingFragment:
-                    Navigation.findNavController(inflatedView).navigate(R.id.action_chatFragment_to_settingFragment);
-                    break;
-                case R.id.logOut:
-                    model.signOut();
-                    Navigation.findNavController(inflatedView).navigate(R.id.action_chatFragment_to_authentificationFragment);
-                    break;
+                @Override
+                public void onItemClick(int position) {
+                    model.setCurrentChat(((Chat) (adapter.getItem(position))).getChatId());
+                    Navigation.findNavController(inflatedView).navigate(R.id.action_selectChatFragment_to_chatFragment);
+                }
             }
-            return false;
+
+            adapter = allChatsRecyclerViewAdapter.getAdapter(adapter, model.getCurrentUser().getEmail(), new onItemClickListenerClass());
+
+            adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                @Override
+                public void onItemRangeInserted(int positionStart, int itemCount) {
+                    allChatsRecyclerView.smoothScrollToPosition(positionStart);
+                }
+            });
+
+            allChatsRecyclerView.setAdapter(adapter);
+
+            adapter.startListening();
+
         });
 
-        messageTextView = inflatedView.findViewById(R.id.editTextMessage);
-        sendMessageButton = inflatedView.findViewById(R.id.sendMessageButton);
-        sendMessageButton.setOnClickListener(v -> {
-            if (!(messageTextView.getText().toString().isEmpty())) {
-                model.sendMessage(new Message(messageTextView.getText().toString(), new Date(), model.getCurrentUser().getEmail()));
-                messageTextView.setText("");
-            }
-        });
+        allChatsRecyclerView = inflatedView.findViewById(R.id.allChatsRecyclerView);
+
+        //Увеличение кэша прогружаемых item'ов
+        allChatsRecyclerView.setItemViewCacheSize(10);
+        allChatsRecyclerView.getRecycledViewPool().setMaxRecycledViews(1, 20);
+        allChatsRecyclerView.getRecycledViewPool().setMaxRecycledViews(2, 20);
+
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(inflatedView.getContext());
+        allChatsRecyclerView.setLayoutManager(layoutManager);
 
         drawerLayout = inflatedView.findViewById(R.id.selectChatFragmentDrawerLayout);
         openNavigationViewButton = inflatedView.findViewById(R.id.openNavigationViewButton);
         openNavigationViewButton.setOnClickListener(view1 -> drawerLayout.open());
 
-    }
+        navigationView.setNavigationItemSelectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.settingFragment:
+                    Navigation.findNavController(inflatedView).navigate(R.id.action_selectChatFragment_to_settingFragment);
+                    break;
+                case R.id.logOut:
+                    model.signOut();
+                    Navigation.findNavController(inflatedView).navigate(R.id.action_selectChatFragment_to_authentificationFragment);
+                    break;
+            }
+            return false;
+        });
 
-    public String generateRandomColorHex() {
-        String color = Integer.toString(random.nextInt(0X1000000), 16);
-        return "000000".substring(color.length()) + color;
     }
 
     @Override
@@ -187,22 +189,8 @@ public class ChatFragment extends Fragment {
         adapter.stopListening();
     }
 
-    public void recyclerViewInitialization() {
-
-        adapter = recyclerViewAdapter.getAdapter(adapter, model.getCurrentUser().getEmail(), model.getCurrentChat());
-
-        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onItemRangeInserted(int positionStart, int itemCount) {
-                messagesRecyclerView.smoothScrollToPosition(positionStart);
-            }
-        });
-
-        messagesRecyclerView.setAdapter(adapter);
-
-        adapter.startListening();
-
+    public String generateRandomColorHex() {
+        String color = Integer.toString(random.nextInt(0X1000000), 16);
+        return "000000".substring(color.length()) + color;
     }
-
-
 }

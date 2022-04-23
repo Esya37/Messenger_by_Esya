@@ -34,5 +34,7 @@
     <string name="insert_link_to_photo_hint">Вставьте ссылку на фото</string>
     <string name="upload_with_link">Загрузить по ссылке</string>
     <string name="avatar">Avatar</string>
+    <string name="start_new_dialog">+ Начать новый диалог</string>
+    <string name="new_messages">0 новых(ое) сообщений(ие)</string>  <!-- TODO: Убрать 0 -->
 
 </resources>

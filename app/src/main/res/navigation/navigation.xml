@@ -11,8 +11,8 @@
         android:label="fragment_authentification"
         tools:layout="@layout/fragment_authentification" >
         <action
-            android:id="@+id/action_authentificationFragment_to_chatFragment"
-            app:destination="@id/chatFragment"
+            android:id="@+id/action_authentificationFragment_to_selectChatFragment"
+            app:destination="@id/selectChatFragment"
             app:popUpTo="@id/navigation" />
     </fragment>
     <fragment
@@ -33,4 +33,19 @@
         android:name="com.example.messengerbyesya.fragments.SettingFragment"
         android:label="fragment_setting"
         tools:layout="@layout/fragment_setting" />
+    <fragment
+        android:id="@+id/selectChatFragment"
+        android:name="com.example.messengerbyesya.fragments.SelectChatFragment"
+        android:label="SelectChatFragment" >
+        <action
+            android:id="@+id/action_selectChatFragment_to_authentificationFragment"
+            app:destination="@id/authentificationFragment"
+            app:popUpTo="@id/navigation" />
+        <action
+            android:id="@+id/action_selectChatFragment_to_chatFragment"
+            app:destination="@id/chatFragment" />
+        <action
+            android:id="@+id/action_selectChatFragment_to_settingFragment"
+            app:destination="@id/settingFragment" />
+    </fragment>
 </navigation>

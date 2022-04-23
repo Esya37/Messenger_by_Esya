@@ -53,7 +53,7 @@ public class AuthentificationFragment extends Fragment {
         model = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
 
         if (model.getCurrentFirebaseUser() != null) {
-            Navigation.findNavController(inflatedView).navigate(R.id.action_authentificationFragment_to_chatFragment);
+            Navigation.findNavController(inflatedView).navigate(R.id.action_authentificationFragment_to_selectChatFragment);
         }
 
         viewPager = inflatedView.findViewById(R.id.viewPager);

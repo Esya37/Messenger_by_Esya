@@ -85,7 +85,7 @@ public class LogInFragment extends BaseFragment {
                     switch (resultToastText) {
                         case "Вы успешно вошли в аккаунт":
                             Toast.makeText(getContext(), resultToastText, Toast.LENGTH_SHORT).show();
-                            Navigation.findNavController(submitButton).navigate(R.id.action_authentificationFragment_to_chatFragment);
+                            Navigation.findNavController(submitButton).navigate(R.id.action_authentificationFragment_to_selectChatFragment);
                             break;
                         case "Неправильный e-mail":
                             email.setError("Неправильный e-mail");

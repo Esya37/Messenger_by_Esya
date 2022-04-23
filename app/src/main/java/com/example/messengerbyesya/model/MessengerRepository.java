@@ -63,6 +63,7 @@ public class MessengerRepository {
     public void sendMessage(Message message) {
         firestoreService.sendMessage(message);
     }
+
     public Task<QuerySnapshot> getCurrentUserFromDB(String email) {
         return firestoreService.getCurrentUserFromDB(email);
     }

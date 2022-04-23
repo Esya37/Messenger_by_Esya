@@ -26,9 +26,18 @@ public class MainActivityViewModel extends ViewModel {
     private String currentUserId;
     private final MessengerRepository messengerRepository;
     private ExecutorService executorService;
+    private String currentChat;
 
     public MainActivityViewModel() {
         messengerRepository = new MessengerRepository();
+    }
+
+    public String getCurrentChat() {
+        return currentChat;
+    }
+
+    public void setCurrentChat(String currentChat) {
+        this.currentChat = currentChat;
     }
 
     public String getCurrentUserId() {

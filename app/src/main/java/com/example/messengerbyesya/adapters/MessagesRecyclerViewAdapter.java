@@ -27,7 +27,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
-public class RecyclerViewAdapter {
+public class MessagesRecyclerViewAdapter {
 
     private Date tempDate;
     private final Calendar dateNowCalendar = new GregorianCalendar();
@@ -36,8 +36,11 @@ public class RecyclerViewAdapter {
     private final FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
     private final StorageReference firebaseStorageRef = firebaseStorage.getReferenceFromUrl("gs://messenger-by-esya.appspot.com/");
 
-    public FirestoreRecyclerAdapter getAdapter(FirestoreRecyclerAdapter adapter, String currentUserEmail){
-        Query query = firebaseFirestore.collection("message").orderBy("date");
+    public FirestoreRecyclerAdapter getAdapter(FirestoreRecyclerAdapter adapter, String currentUserEmail, String currentChatId){
+        //Query query = firebaseFirestore.collection("message").orderBy("date");  //TODO: Добавить в запрос нахождение чата по id
+
+        Query query = firebaseFirestore.collection("chats").document(currentChatId).collection("messages").orderBy("date");
+
 
         FirestoreRecyclerOptions<Message> options = new FirestoreRecyclerOptions.Builder<Message>().setQuery(query, snapshot -> {
             Message tempMessage = new Message();
@@ -96,7 +99,7 @@ public class RecyclerViewAdapter {
 
             private void onBindViewHolderCurrentUser(CurrentUserViewHolder holder, Message message) {
                 holder.messageTextView.setText(message.getText());
-                holder.timeTextView.setText(message.getDate().toString());
+                holder.timeTextView.setText(message.getDate().toString()); //TODO: Проверить, можно ли это убрать
 
                 tempDate = new Date();
                 tempDate.setTime(message.getDate().getTime());

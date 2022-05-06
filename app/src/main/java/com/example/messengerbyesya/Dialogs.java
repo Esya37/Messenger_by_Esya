@@ -11,13 +11,12 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 
 import com.example.messengerbyesya.model.User;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class Dialogs {
 
@@ -36,7 +35,6 @@ public class Dialogs {
     private String[] name;
     private ProgressDialog pd;
     private MainActivityViewModel model;
-    private ExecutorService executorService;
 
     public AlertDialog getDialog(Activity activity, DialogType dialogType, User currentUser, String currentUserId) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
@@ -55,7 +53,7 @@ public class Dialogs {
                 builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
                 alertDialog = builder.create();
                 alertDialog.setOnShowListener(dialog -> alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-                    if(!(hasConnection(v.getContext()))){
+                    if (!(hasConnection(v.getContext()))) {
                         Toast.makeText(v.getContext(), "Check your Internet connection", Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -95,7 +93,7 @@ public class Dialogs {
                 builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
                 alertDialog = builder.create();
                 alertDialog.setOnShowListener(dialog -> alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-                    if(!(hasConnection(v.getContext()))){
+                    if (!(hasConnection(v.getContext()))) {
                         Toast.makeText(v.getContext(), "Check your Internet connection", Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -120,28 +118,27 @@ public class Dialogs {
                     pd.setMessage("Loading...");
                     pd.show();
 
-                    executorService = Executors.newSingleThreadExecutor();
-                    executorService.execute(() -> {
-                        String resultToastText = model.changePassword(model.getCurrentUser().getEmail(), oldPasswordEditText.getText().toString(), newPasswordEditText.getText().toString());
-                        activity.runOnUiThread(() -> {
+                    model.changePassword(model.getCurrentUser().getEmail(), oldPasswordEditText.getText().toString(), newPasswordEditText.getText().toString()).observe((LifecycleOwner) activity, (Observer<String>) s -> {
+                        if(!s.equals("")) {
                             pd.dismiss();
-                            switch (resultToastText) {
-                                case "Пароль успешно изменен":
-                                    oldPasswordEditText.setError(null);
-                                    Toast.makeText(activity, resultToastText, Toast.LENGTH_SHORT).show();
-                                    dialog.dismiss();
-                                    break;
-                                case "Неверный пароль":
-                                    oldPasswordEditText.setError("Неверный пароль");
-                                    break;
-                                default:
-                                    Toast.makeText(activity, resultToastText, Toast.LENGTH_SHORT).show();
-                                    break;
-                            }
-                        });
+                        }
+                        switch (s) {
+                            case "Пароль успешно изменен":
+                                oldPasswordEditText.setError(null);
+                                model.changePassword(" ", " ", " ").removeObservers((LifecycleOwner) activity);
+                                Toast.makeText(activity, s, Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
+                                break;
+                            case "Неверный пароль":
+                                oldPasswordEditText.setError("Неверный пароль");
+                                break;
+                            case "":
+                                break;
+                            default:
+                                Toast.makeText(activity, s, Toast.LENGTH_SHORT).show();
+                                break;
+                        }
                     });
-
-                    executorService.shutdown();
 
                 }));
                 return alertDialog;
@@ -155,7 +152,7 @@ public class Dialogs {
                 builder.setPositiveButton(R.string.yes, null);
                 alertDialog = builder.create();
                 alertDialog.setOnShowListener(dialog -> alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-                    if(!(hasConnection(v.getContext()))){
+                    if (!(hasConnection(v.getContext()))) {
                         Toast.makeText(v.getContext(), "Check your Internet connection", Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -167,11 +164,10 @@ public class Dialogs {
                     pd.show();
 
                     model.deleteImage(currentUser.getAvatar()).addOnCompleteListener(task -> {
-                        if(task.isSuccessful()){
-                            pd.dismiss();
-                        } else {
+                        if (!task.isSuccessful()) {
                             Toast.makeText(pd.getContext(), "Что-то пошло не так, попробуйте еще раз", Toast.LENGTH_LONG).show();
                         }
+                        pd.dismiss();
                     });
                     currentUser.setAvatar("none");
                     model.setUser(currentUser, currentUserId);

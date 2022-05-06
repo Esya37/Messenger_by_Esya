@@ -19,13 +19,18 @@
 
     <TextView
         android:id="@+id/chatNameTextView"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
-        android:textColor="@color/black"
+        android:layout_marginEnd="10dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="@color/white"
         android:textSize="20sp"
         android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/chatAvatarImageView"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Алексей Алексеев" />
@@ -36,11 +41,11 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
-        android:text="@string/new_messages"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textSize="16sp"
         app:layout_constraintStart_toEndOf="@+id/chatAvatarImageView"
-        app:layout_constraintTop_toBottomOf="@+id/chatNameTextView" />
+        app:layout_constraintTop_toBottomOf="@+id/chatNameTextView"
+        tools:text="Нет новых сообщений" />
 
     <TextView
         android:id="@+id/timeOfLastMessageTextView"
@@ -48,8 +53,23 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         app:layout_constraintStart_toEndOf="@+id/chatAvatarImageView"
         app:layout_constraintTop_toBottomOf="@+id/countOfUncheckedMessagesTextView"
         tools:text="03.10.2021" />
+
+    <ImageView
+        android:id="@+id/onlineMarkerImageView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="@+id/chatAvatarImageView"
+        app:layout_constraintHeight_percent="0.15"
+        app:layout_constraintHorizontal_bias="0.1"
+        app:layout_constraintStart_toStartOf="@+id/chatAvatarImageView"
+        app:layout_constraintTop_toTopOf="@+id/chatAvatarImageView"
+        app:layout_constraintVertical_bias="0.9"
+        app:srcCompat="@drawable/online_marker" />
 </androidx.constraintlayout.widget.ConstraintLayout>

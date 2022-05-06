@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
@@ -77,58 +78,36 @@ public class RegistrationFragment extends BaseFragment {
                 return;
             }
 
-            List<User> users = new ArrayList<>();
-            Validation validation = new Validation();
-            User tempUser = new User();
-            tempUser.setEmail("qwe@mail.com");
-            users.add(tempUser);
-            User tempUser1 = new User();
-            tempUser1.setEmail("qwe1@mail.com");
-            users.add(tempUser1);
-            User tempUser2 = new User();
-            tempUser2.setEmail("qwe2@mail.com");
-            users.add(tempUser2);
-
-            validation.setUsers(users);
-            if(!validation.fullValidation(email.getText().toString(), password.getText().toString(), repeatedPassword.getText().toString())){
-                password.setError("Введенные данные неверны");   //TODO: Убрать это убожество
+            if (!(isEmailValid(email.getText().toString()))) {
+                email.setError("E-mail недействителен");
                 return;
+            } else {
+                email.setError(null);
+            }
+            if (password.getText().toString().length() < 6) {
+                password.setError("Длина пароля должна быть 6 символов или более");
+                return;
+            } else {
+                password.setError(null);
+            }
+            if (!(password.getText().toString().equals(repeatedPassword.getText().toString()))) {
+                password.setError("Пароли не совпадают");
+                repeatedPassword.setError("Пароли не совпадают");
+                return;
+            } else {
+                password.setError(null);
+                repeatedPassword.setError(null);
             }
 
-
-//            if (!(isEmailValid(email.getText().toString()))) {
-//                email.setError("E-mail недействителен");
-//                return;
-//            } else {
-//                email.setError(null);
-//            }
-//            if (password.getText().toString().length() < 6) {
-//                password.setError("Длина пароля должна быть 6 символов или более");
-//                return;
-//            } else {
-//                password.setError(null);
-//            }
-//            if (!(password.getText().toString().equals(repeatedPassword.getText().toString()))) {
-//                password.setError("Пароли не совпадают");
-//                repeatedPassword.setError("Пароли не совпадают");
-//                return;
-//            } else {
-//                password.setError(null);
-//                repeatedPassword.setError(null);
-//            }
-
             pd.show();
-            executorService.execute(() -> {
-                String resultToastText = model.createUser(email.getText().toString(), password.getText().toString());
-                requireActivity().runOnUiThread(() -> {
-                    pd.dismiss();
-                    Toast.makeText(getContext(), resultToastText, Toast.LENGTH_SHORT).show();
-                    if(resultToastText.equals("Вы успешно зарегистрировались")){
-                        Navigation.findNavController(submitButton).navigate(R.id.action_authentificationFragment_to_selectChatFragment);
-                    }
-                });
+            model.createUser(email.getText().toString(), password.getText().toString()).observe(getViewLifecycleOwner(), s -> {
+                pd.dismiss();
+                Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
+                if (s.equals("Вы успешно зарегистрировались")) {
+                    model.createUser(" ", " ").removeObservers(getViewLifecycleOwner());
+                    Navigation.findNavController(submitButton).navigate(R.id.action_authentificationFragment_to_selectChatFragment);
+                }
             });
-
 
 
         });

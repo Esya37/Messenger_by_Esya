@@ -7,6 +7,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.Barrier;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.messengerbyesya.R;
@@ -19,6 +22,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
@@ -32,12 +36,12 @@ public class MessagesRecyclerViewAdapter {
     private Date tempDate;
     private final Calendar dateNowCalendar = new GregorianCalendar();
     private Timestamp timestamp;
+    private OnSuccessListener onSuccessListener;
     private final FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
     private final FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
     private final StorageReference firebaseStorageRef = firebaseStorage.getReferenceFromUrl("gs://messenger-by-esya.appspot.com/");
 
     public FirestoreRecyclerAdapter getAdapter(FirestoreRecyclerAdapter adapter, String currentUserEmail, String currentChatId){
-        //Query query = firebaseFirestore.collection("message").orderBy("date");  //TODO: Добавить в запрос нахождение чата по id
 
         Query query = firebaseFirestore.collection("chats").document(currentChatId).collection("messages").orderBy("date");
 
@@ -47,7 +51,8 @@ public class MessagesRecyclerViewAdapter {
             timestamp = (Timestamp) snapshot.get("date");
             tempMessage.setDate(timestamp.toDate());
             tempMessage.setText((String) snapshot.get("text"));
-            tempMessage.setSender_email((String) snapshot.get("sender_email"));
+            tempMessage.setMediaResource((Boolean) snapshot.get("is_media_resource"));
+            tempMessage.setSenderEmail((String) snapshot.get("sender_email"));
 
             return tempMessage;
         }).build();
@@ -71,8 +76,31 @@ public class MessagesRecyclerViewAdapter {
             }
 
             private void onBindViewHolderOtherUsers(OtherUsersViewHolder holder, Message message) {
-                holder.messageTextView.setText(message.getText());
-                holder.timeTextView.setText(message.getDate().toString());
+                if(message.getMediaResource()){
+                    firebaseStorageRef.child("chats_media_resources/" + currentChatId + "/" + message.getText()).getDownloadUrl().addOnSuccessListener(uri -> Picasso.with(holder.messageImageImageView.getContext()).load(uri).into(holder.messageImageImageView, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            onSuccessListener.onSuccess();
+                        }
+
+                        @Override
+                        public void onError() {
+
+                        }
+                    }));
+                    holder.messageTextView.setVisibility(View.GONE);
+                    holder.messageImageImageView.setVisibility(View.VISIBLE);
+
+                    ConstraintSet constraintSet = new ConstraintSet();
+                    constraintSet.clone(holder.constraintLayout);
+                    constraintSet.connect(holder.senderAvatarImageView.getId(), ConstraintSet.BOTTOM, holder.messageImageImageView.getId(), ConstraintSet.BOTTOM);
+                    constraintSet.connect(holder.timeTextView.getId(), ConstraintSet.TOP, holder.messageImageImageView.getId(), ConstraintSet.BOTTOM);
+                    constraintSet.applyTo(holder.constraintLayout);
+                } else {
+                    holder.messageTextView.setText(message.getText());
+                    holder.messageTextView.setVisibility(View.VISIBLE);
+                    holder.messageImageImageView.setVisibility(View.GONE);
+                }
 
                 tempDate = new Date();
                 tempDate.setTime(message.getDate().getTime());
@@ -88,18 +116,43 @@ public class MessagesRecyclerViewAdapter {
                     holder.timeTextView.setText(new SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH).format(tempDate));
                 }
 
-                firebaseFirestore.collection("user").whereEqualTo("email", message.getSender_email()).get().addOnSuccessListener(queryDocumentSnapshots -> {
+                firebaseFirestore.collection("user").whereEqualTo("email", message.getSenderEmail()).get().addOnSuccessListener(queryDocumentSnapshots -> {
                     User tempUser = new User();
                     tempUser = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
                     message.setSender(tempUser);
                     holder.senderNameTextView.setText(message.getSender().getName());
-                    firebaseStorageRef.child(message.getSender().getAvatar()).getDownloadUrl().addOnSuccessListener(uri -> Picasso.with(holder.senderAvatarImageView.getContext()).load(uri).resize(50, 50).centerCrop().into(holder.senderAvatarImageView));
+                    firebaseStorageRef.child("avatars/" + message.getSender().getAvatar()).getDownloadUrl().addOnSuccessListener(uri -> Picasso.with(holder.senderAvatarImageView.getContext()).load(uri).fit().centerCrop().into(holder.senderAvatarImageView));
                 });
             }
 
             private void onBindViewHolderCurrentUser(CurrentUserViewHolder holder, Message message) {
-                holder.messageTextView.setText(message.getText());
-                holder.timeTextView.setText(message.getDate().toString()); //TODO: Проверить, можно ли это убрать
+
+                if(message.getMediaResource()){
+                    firebaseStorageRef.child("chats_media_resources/" + currentChatId + "/" + message.getText()).getDownloadUrl().addOnSuccessListener(uri -> Picasso.with(holder.messageImageImageView.getContext()).load(uri).into(holder.messageImageImageView, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            onSuccessListener.onSuccess();
+                        }
+
+                        @Override
+                        public void onError() {
+
+                        }
+                    }));
+                    holder.messageTextView.setVisibility(View.GONE);
+                    holder.messageImageImageView.setVisibility(View.VISIBLE);
+                    holder.barrier.addView(holder.messageImageImageView);
+
+                    ConstraintSet constraintSet = new ConstraintSet();
+                    constraintSet.clone(holder.constraintLayout);
+                    constraintSet.connect(holder.senderAvatarImageView.getId(), ConstraintSet.BOTTOM, holder.messageImageImageView.getId(), ConstraintSet.BOTTOM);
+                    constraintSet.connect(holder.timeTextView.getId(), ConstraintSet.TOP, holder.messageImageImageView.getId(), ConstraintSet.BOTTOM);
+                    constraintSet.applyTo(holder.constraintLayout);
+                } else {
+                    holder.messageTextView.setText(message.getText());
+                    holder.messageTextView.setVisibility(View.VISIBLE);
+                   // holder.messageImageImageView.setVisibility(View.GONE);
+                }
 
                 tempDate = new Date();
                 tempDate.setTime(message.getDate().getTime());
@@ -115,18 +168,18 @@ public class MessagesRecyclerViewAdapter {
                     holder.timeTextView.setText(new SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH).format(tempDate));
                 }
 
-                firebaseFirestore.collection("user").whereEqualTo("email", message.getSender_email()).get().addOnSuccessListener(queryDocumentSnapshots -> {
+                firebaseFirestore.collection("user").whereEqualTo("email", message.getSenderEmail()).get().addOnSuccessListener(queryDocumentSnapshots -> {
                     User tempUser = new User();
                     tempUser = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
                     message.setSender(tempUser);
                     holder.senderNameTextView.setText(message.getSender().getName());
-                    firebaseStorageRef.child(message.getSender().getAvatar()).getDownloadUrl().addOnSuccessListener(uri -> Picasso.with(holder.senderAvatarImageView.getContext()).load(uri).resize(50, 50).centerCrop().into(holder.senderAvatarImageView));
+                    firebaseStorageRef.child("avatars/" + message.getSender().getAvatar()).getDownloadUrl().addOnSuccessListener(uri -> Picasso.with(holder.senderAvatarImageView.getContext()).load(uri).fit().centerCrop().into(holder.senderAvatarImageView));
                 });
             }
 
             @Override
             public int getItemViewType(int position) {
-                if (getItem(position).getSender_email().equals(currentUserEmail)) {
+                if (getItem(position).getSenderEmail().equals(currentUserEmail)) {
                     return MESSAGE_FROM_CURRENT_USER_TYPE;
                 } else {
                     return MESSAGE_FROM_OTHER_USERS_TYPE;
@@ -150,12 +203,21 @@ public class MessagesRecyclerViewAdapter {
         return adapter;
     }
 
+    public void setOnSuccessListener(OnSuccessListener onSuccessListener) {
+        this.onSuccessListener = onSuccessListener;
+    }
+
+    public interface OnSuccessListener{
+        public void onSuccess();
+    }
 
     public static class OtherUsersViewHolder extends RecyclerView.ViewHolder {
         TextView senderNameTextView;
         TextView messageTextView;
         TextView timeTextView;
         ImageView senderAvatarImageView;
+        ImageView messageImageImageView;
+        ConstraintLayout constraintLayout;
 
         OtherUsersViewHolder(View view) {
             super(view);
@@ -163,6 +225,8 @@ public class MessagesRecyclerViewAdapter {
             messageTextView = view.findViewById(R.id.messageTextView);
             timeTextView = view.findViewById(R.id.timeTextView);
             senderAvatarImageView = view.findViewById(R.id.senderAvatarImageView);
+            messageImageImageView = view.findViewById(R.id.messageImageImageView);
+            constraintLayout = view.findViewById(R.id.chatOtherUsersRecyclerViewItemConstraintLayout);
         }
 
     }
@@ -172,6 +236,9 @@ public class MessagesRecyclerViewAdapter {
         TextView messageTextView;
         TextView timeTextView;
         ImageView senderAvatarImageView;
+        ImageView messageImageImageView;
+        ConstraintLayout constraintLayout;
+        Barrier barrier;
 
         CurrentUserViewHolder(View view) {
             super(view);
@@ -179,6 +246,9 @@ public class MessagesRecyclerViewAdapter {
             messageTextView = view.findViewById(R.id.messageTextView2);
             timeTextView = view.findViewById(R.id.timeTextView2);
             senderAvatarImageView = view.findViewById(R.id.senderAvatarImageView2);
+            messageImageImageView = view.findViewById(R.id.messageImageImageView2);
+            constraintLayout = view.findViewById(R.id.chatOtherUsersRecyclerViewItemConstraintLayout2);
+            barrier = view.findViewById(R.id.verticalBarrier2);
         }
 
     }

@@ -13,6 +13,8 @@
         <action
             android:id="@+id/action_authentificationFragment_to_selectChatFragment"
             app:destination="@id/selectChatFragment"
+            app:enterAnim="@anim/from_right_to_center_animation"
+            app:exitAnim="@anim/from_100width_to_0width_animation"
             app:popUpTo="@id/navigation" />
     </fragment>
     <fragment
@@ -22,7 +24,11 @@
         tools:layout="@layout/fragment_chat" >
         <action
             android:id="@+id/action_chatFragment_to_settingFragment"
-            app:destination="@id/settingFragment" />
+            app:destination="@id/settingFragment"
+            app:enterAnim="@anim/from_down_to_center_animation"
+            app:exitAnim="@anim/from_nothing_to_nothing_animation"
+            app:popEnterAnim="@anim/from_nothing_to_nothing_animation"
+            app:popExitAnim="@anim/from_center_to_down_animation" />
         <action
             android:id="@+id/action_chatFragment_to_authentificationFragment"
             app:destination="@id/authentificationFragment"
@@ -40,12 +46,43 @@
         <action
             android:id="@+id/action_selectChatFragment_to_authentificationFragment"
             app:destination="@id/authentificationFragment"
+            app:enterAnim="@anim/from_0wight_to_100width_animation"
+            app:exitAnim="@anim/from_center_to_right_animation"
             app:popUpTo="@id/navigation" />
         <action
             android:id="@+id/action_selectChatFragment_to_chatFragment"
-            app:destination="@id/chatFragment" />
+            app:destination="@id/chatFragment"
+            app:enterAnim="@anim/from_right_to_center_animation"
+            app:exitAnim="@anim/from_100width_to_0width_animation"
+            app:popEnterAnim="@anim/from_0wight_to_100width_animation"
+            app:popExitAnim="@anim/from_center_to_right_animation" />
         <action
             android:id="@+id/action_selectChatFragment_to_settingFragment"
-            app:destination="@id/settingFragment" />
+            app:destination="@id/settingFragment"
+            app:enterAnim="@anim/from_down_to_center_animation"
+            app:exitAnim="@anim/from_nothing_to_nothing_animation"
+            app:popEnterAnim="@anim/from_nothing_to_nothing_animation"
+            app:popExitAnim="@anim/from_center_to_down_animation" />
+        <action
+            android:id="@+id/action_selectChatFragment_to_createChatFragment"
+            app:destination="@id/createChatFragment"
+            app:enterAnim="@anim/from_down_to_center_animation"
+            app:exitAnim="@anim/from_nothing_to_nothing_animation"
+            app:popEnterAnim="@anim/from_nothing_to_nothing_animation"
+            app:popExitAnim="@anim/from_center_to_down_animation" />
+    </fragment>
+    <fragment
+        android:id="@+id/createChatFragment"
+        android:name="com.example.messengerbyesya.fragments.CreateChatFragment"
+        android:label="fragment_create_chat"
+        tools:layout="@layout/fragment_create_chat" >
+        <action
+            android:id="@+id/action_createChatFragment_to_chatFragment"
+            app:destination="@id/chatFragment"
+            app:enterAnim="@anim/from_right_to_center_animation"
+            app:exitAnim="@anim/from_100width_to_0width_animation"
+            app:popEnterAnim="@anim/from_0wight_to_100width_animation"
+            app:popExitAnim="@anim/from_center_to_right_animation"
+            app:popUpTo="@id/selectChatFragment" />
     </fragment>
 </navigation>

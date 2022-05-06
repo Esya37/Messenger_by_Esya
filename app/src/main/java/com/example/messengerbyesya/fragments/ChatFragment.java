@@ -1,5 +1,7 @@
 package com.example.messengerbyesya.fragments;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,8 +11,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -45,6 +50,34 @@ public class ChatFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        photoPickerActivityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+
+                        View inflatedDialogView = requireActivity().getLayoutInflater().inflate(R.layout.send_image_dialog, null);
+
+                        ImageView imageView = inflatedDialogView.findViewById(R.id.pickedImageImageView);
+                        imageView.setImageURI(data.getData());
+
+                        AlertDialog.Builder builder =
+                                new AlertDialog.Builder(requireContext()).
+                                        setTitle(getString(R.string.send_image)).
+                                        setView(inflatedDialogView).
+                                        setPositiveButton(getString(R.string.yes), (dialog, which) -> {
+                                            Message imageMessage = new Message(model.getCurrentUserId() + ";" + new Date().toString(), new Date(), model.getCurrentUser().getEmail());
+                                            imageMessage.setMediaResource(true);
+                                            model.sendImage(imageMessage, ((BitmapDrawable) imageView.getDrawable()).getBitmap());
+                                            dialog.dismiss();
+                                        }).
+                                        setNegativeButton(getString(R.string.no), (dialog, i) -> {
+                                            dialog.dismiss();
+                                        });
+                        builder.create().show();
+                    }
+                });
     }
 
     private View inflatedView;
@@ -57,10 +90,12 @@ public class ChatFragment extends Fragment {
     private RecyclerView messagesRecyclerView;
     private FirestoreRecyclerAdapter adapter;
     private Button sendMessageButton;
+    private Button addMediaResourceButton;
     private FloatingActionButton openNavigationViewButton;
     private DrawerLayout drawerLayout;
     private TextView messageTextView;
     private final MessagesRecyclerViewAdapter recyclerViewAdapter = new MessagesRecyclerViewAdapter();
+    private ActivityResultLauncher<Intent> photoPickerActivityResultLauncher;
 
 
     @Override
@@ -76,8 +111,6 @@ public class ChatFragment extends Fragment {
 
         model = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
 
-        //TODO: Попробовать вынести этот код в BaseFragment
-
         navigationView = inflatedView.findViewById(R.id.selectChatFragmentNavigationView);
         header = navigationView.getHeaderView(0);
         nameTextView = header.findViewById(R.id.nameTextView);
@@ -85,7 +118,7 @@ public class ChatFragment extends Fragment {
 
         random = new Random();
 
-        model.getCurrentUserFromDB(model.getCurrentFirebaseUser().getEmail()).addOnSuccessListener(queryDocumentSnapshots -> { //TODO: Убрать все это?
+        model.getCurrentUserFromDB(model.getCurrentFirebaseUser().getEmail()).addOnSuccessListener(queryDocumentSnapshots -> {
             model.setCurrentUser(queryDocumentSnapshots.getDocuments().get(0).toObject(User.class));
             model.setCurrentUserId(queryDocumentSnapshots.getDocuments().get(0).getId());
             nameTextView.setText(model.getCurrentUser().getName());
@@ -131,6 +164,8 @@ public class ChatFragment extends Fragment {
                 model.getAvatar(model.getCurrentUser()).addOnSuccessListener(uri -> Picasso.with(getContext()).load(uri).into(avatarImageView));
             }
 
+            model.readMessage();
+
             messagesRecyclerView = inflatedView.findViewById(R.id.messagesRecyclerView);
 
             //Увеличение кэша прогружаемых item'ов
@@ -144,7 +179,6 @@ public class ChatFragment extends Fragment {
             messagesRecyclerView.setLayoutManager(layoutManager);
 
             recyclerViewInitialization();
-
 
         });
 
@@ -162,6 +196,14 @@ public class ChatFragment extends Fragment {
         });
 
         messageTextView = inflatedView.findViewById(R.id.editTextMessage);
+
+        addMediaResourceButton = inflatedView.findViewById(R.id.addMediaResourceButton);
+        addMediaResourceButton.setOnClickListener(view12 -> {
+            Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+            photoPickerIntent.setType("image/*");
+            photoPickerActivityResultLauncher.launch(photoPickerIntent);
+        });
+
         sendMessageButton = inflatedView.findViewById(R.id.sendMessageButton);
         sendMessageButton.setOnClickListener(v -> {
             if (!(messageTextView.getText().toString().isEmpty())) {
@@ -176,20 +218,34 @@ public class ChatFragment extends Fragment {
 
     }
 
-    public String generateRandomColorHex() {
-        String color = Integer.toString(random.nextInt(0X1000000), 16);
-        return "000000".substring(color.length()) + color;
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
         adapter.stopListening();
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        model.changeOnlineStatus(false);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        model.changeOnlineStatus(true);
+    }
+
     public void recyclerViewInitialization() {
 
-        adapter = recyclerViewAdapter.getAdapter(adapter, model.getCurrentUser().getEmail(), model.getCurrentChat());
+        recyclerViewAdapter.setOnSuccessListener(new MessagesRecyclerViewAdapter.OnSuccessListener() {
+            @Override
+            public void onSuccess() {
+                messagesRecyclerView.smoothScrollToPosition(adapter.getItemCount() - 1);
+            }
+        });
+
+        adapter = recyclerViewAdapter.getAdapter(adapter, model.getCurrentUser().getEmail(), model.getCurrentChat().getChatId());
 
         adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
@@ -204,5 +260,8 @@ public class ChatFragment extends Fragment {
 
     }
 
-
+    public String generateRandomColorHex() {
+        String color = Integer.toString(random.nextInt(0X1000000), 16);
+        return "000000".substring(color.length()) + color;
+    }
 }

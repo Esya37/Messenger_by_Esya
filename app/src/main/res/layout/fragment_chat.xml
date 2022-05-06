@@ -16,7 +16,7 @@
             android:id="@+id/sendMessageButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
+            android:layout_marginEnd="10dp"
             android:layout_marginBottom="20dp"
             android:background="@android:color/transparent"
             android:backgroundTint="@android:color/transparent"
@@ -31,8 +31,8 @@
             android:id="@+id/editTextMessage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
             android:background="@drawable/input_message_field"
             android:ems="10"
             android:hint="@string/enter_message"
@@ -42,7 +42,7 @@
             android:textSize="20sp"
             app:layout_constraintBaseline_toBaselineOf="@+id/sendMessageButton"
             app:layout_constraintEnd_toStartOf="@+id/sendMessageButton"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toEndOf="@+id/addMediaResourceButton" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/messagesRecyclerView"
@@ -70,6 +70,19 @@
             app:layout_constraintTop_toTopOf="parent"
             app:maxImageSize="24dp"
             app:pressedTranslationZ="0dp" />
+
+        <Button
+            android:id="@+id/addMediaResourceButton"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/paper_clip_icon"
+            app:layout_constraintBottom_toBottomOf="@+id/editTextMessage"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/editTextMessage" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.navigation.NavigationView

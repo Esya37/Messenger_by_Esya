@@ -4,6 +4,8 @@ import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.net.Uri;
 
+import androidx.lifecycle.LiveData;
+
 import com.example.messengerbyesya.services.AuthentificationService;
 import com.example.messengerbyesya.services.FirestoreService;
 import com.google.android.gms.tasks.Task;
@@ -20,23 +22,23 @@ public class MessengerRepository {
         firestoreService = new FirestoreService();
     }
 
-    public FirebaseUser getCurrentFirebaseUser(){
+    public FirebaseUser getCurrentFirebaseUser() {
         return authentificationService.getCurrentFirebaseUser();
     }
 
-    public String createUser(String email, String password) {
+    public LiveData<String> createUser(String email, String password) {
         return authentificationService.createUser(email, password);
     }
 
-    public String signInWithEmailAndPassword(String email, String password) {
+    public LiveData<String> signInWithEmailAndPassword(String email, String password) {
         return authentificationService.signInWithEmailAndPassword(email, password);
     }
 
-    public void signOut(){
+    public void signOut() {
         authentificationService.signOut();
     }
 
-    public String changePassword(String email, String oldPassword, String newPassword) {
+    public LiveData<String> changePassword(String email, String oldPassword, String newPassword) {
         return authentificationService.changePassword(email, oldPassword, newPassword);
     }
 
@@ -48,7 +50,7 @@ public class MessengerRepository {
         return firestoreService.uploadAvatar(bitmap, user, currentUserId, pd);
     }
 
-    public void uploadTempAvatar(Bitmap bitmap, User user ) {
+    public void uploadTempAvatar(Bitmap bitmap, User user) {
         firestoreService.uploadTempAvatar(bitmap, user);
     }
 
@@ -60,8 +62,24 @@ public class MessengerRepository {
         return firestoreService.deleteImage(imagePath);
     }
 
-    public void sendMessage(Message message) {
-        firestoreService.sendMessage(message);
+    public void sendImage(Message message, Bitmap bitmap, Chat currentChat) {
+        firestoreService.sendImage(message, bitmap, currentChat);
+    }
+
+    public void sendMessage(Message message, Chat currentChat) {
+        firestoreService.sendMessage(message, currentChat);
+    }
+
+    public void readMessage(String currentUserEmail, Chat currentChat) {
+        firestoreService.readMessage(currentUserEmail, currentChat);
+    }
+
+    public void changeOnlineStatus(String currentUserId, boolean isUserOnline) {
+        firestoreService.changeOnlineStatus(currentUserId, isUserOnline);
+    }
+
+    public LiveData<Chat> createChat(Chat chat, String currentUserEmail, String startChatText) {
+        return firestoreService.createChat(chat, currentUserEmail, startChatText);
     }
 
     public Task<QuerySnapshot> getCurrentUserFromDB(String email) {

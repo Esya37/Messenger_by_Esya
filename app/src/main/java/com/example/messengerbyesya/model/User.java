@@ -1,10 +1,13 @@
 package com.example.messengerbyesya.model;
 
+import com.google.firebase.firestore.PropertyName;
+
 public class User {
     private String email;
     private String password;
     private String name;
     private String avatar;
+    private boolean isUserOnline;
 
     public User(){
 
@@ -15,6 +18,7 @@ public class User {
         this.password = password;
         this.name = name;
         this.avatar = avatar;
+        this.isUserOnline = false;
     }
 
     public String getEmail() {
@@ -47,5 +51,15 @@ public class User {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    @PropertyName("is_user_online")
+    public boolean isUserOnline() {
+        return isUserOnline;
+    }
+
+    @PropertyName("is_user_online")
+    public void setUserOnline(boolean userOnline) {
+        isUserOnline = userOnline;
     }
 }

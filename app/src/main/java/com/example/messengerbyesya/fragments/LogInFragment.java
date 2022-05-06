@@ -17,9 +17,6 @@ import androidx.navigation.Navigation;
 import com.example.messengerbyesya.MainActivityViewModel;
 import com.example.messengerbyesya.R;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 public class LogInFragment extends BaseFragment {
 
     public LogInFragment() {
@@ -40,7 +37,6 @@ public class LogInFragment extends BaseFragment {
     private EditText email;
     private EditText password;
     private MainActivityViewModel model;
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private ProgressDialog pd;
 
     @Override
@@ -78,26 +74,28 @@ public class LogInFragment extends BaseFragment {
             }
 
             pd.show();
-            executorService.execute(() -> {
-                String resultToastText = model.signInWithEmailAndPassword(email.getText().toString(), password.getText().toString());
-                requireActivity().runOnUiThread(() -> {
+            model.signInWithEmailAndPassword(email.getText().toString(), password.getText().toString()).observe(getViewLifecycleOwner(), s -> {
+                if(!s.equals("")) {
                     pd.dismiss();
-                    switch (resultToastText) {
-                        case "Вы успешно вошли в аккаунт":
-                            Toast.makeText(getContext(), resultToastText, Toast.LENGTH_SHORT).show();
-                            Navigation.findNavController(submitButton).navigate(R.id.action_authentificationFragment_to_selectChatFragment);
-                            break;
-                        case "Неправильный e-mail":
-                            email.setError("Неправильный e-mail");
-                            break;
-                        case "Неправильный пароль":
-                            password.setError("Неправильный пароль");
-                            break;
-                        default:
-                            Toast.makeText(getContext(), resultToastText, Toast.LENGTH_SHORT).show();
-                            break;
-                    }
-                });
+                }
+                switch (s) {
+                    case "Вы успешно вошли в аккаунт":
+                        Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
+                        model.signInWithEmailAndPassword(" ", " ").removeObservers(getViewLifecycleOwner());
+                        Navigation.findNavController(submitButton).navigate(R.id.action_authentificationFragment_to_selectChatFragment);
+                        break;
+                    case "Неправильный e-mail":
+                        email.setError("Неправильный e-mail");
+                        break;
+                    case "Неправильный пароль":
+                        password.setError("Неправильный пароль");
+                        break;
+                    case "":
+                        break;
+                    default:
+                        Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
+                        break;
+                }
             });
 
         });
@@ -106,6 +104,5 @@ public class LogInFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        executorService.shutdown();
     }
 }

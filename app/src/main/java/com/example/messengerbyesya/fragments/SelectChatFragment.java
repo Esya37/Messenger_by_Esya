@@ -2,25 +2,21 @@ package com.example.messengerbyesya.fragments;
 
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.messengerbyesya.MainActivityViewModel;
 import com.example.messengerbyesya.R;
@@ -59,6 +55,7 @@ public class SelectChatFragment extends Fragment {
     private Random random;
     private DrawerLayout drawerLayout;
     private FloatingActionButton openNavigationViewButton;
+    private Button startNewDialogButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -81,11 +78,16 @@ public class SelectChatFragment extends Fragment {
         nameTextView = header.findViewById(R.id.nameTextView);
         avatarImageView = header.findViewById(R.id.avatarImageView);
 
+        startNewDialogButton = inflatedView.findViewById(R.id.startNewDialogButton);
+        startNewDialogButton.setEnabled(false);
+
         random = new Random();
 
         model.getCurrentUserFromDB(model.getCurrentFirebaseUser().getEmail()).addOnSuccessListener(queryDocumentSnapshots -> {
             model.setCurrentUser(queryDocumentSnapshots.getDocuments().get(0).toObject(User.class));
             model.setCurrentUserId(queryDocumentSnapshots.getDocuments().get(0).getId());
+            startNewDialogButton.setEnabled(true);
+            model.changeOnlineStatus(true);
             nameTextView.setText(model.getCurrentUser().getName());
             if (model.getCurrentUser().getAvatar().equals("none")) {
                 if (model.getCurrentUser().getName().split(" ").length > 2) {
@@ -133,12 +135,12 @@ public class SelectChatFragment extends Fragment {
 
                 @Override
                 public void onItemClick(int position) {
-                    model.setCurrentChat(((Chat) (adapter.getItem(position))).getChatId());
+                    model.setCurrentChat((Chat) adapter.getItem(position));
                     Navigation.findNavController(inflatedView).navigate(R.id.action_selectChatFragment_to_chatFragment);
                 }
             }
 
-            adapter = allChatsRecyclerViewAdapter.getAdapter(adapter, model.getCurrentUser().getEmail(), new onItemClickListenerClass());
+            adapter = allChatsRecyclerViewAdapter.getAdapter(adapter, model.getCurrentUser().getEmail(), new onItemClickListenerClass(), requireContext());
 
             adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
                 @Override
@@ -181,6 +183,26 @@ public class SelectChatFragment extends Fragment {
             return false;
         });
 
+        startNewDialogButton.setOnClickListener(view12 -> {
+            Navigation.findNavController(inflatedView).navigate(R.id.action_selectChatFragment_to_createChatFragment);
+        });
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (model.getCurrentUserId() != null) {
+            model.changeOnlineStatus(false);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (model.getCurrentUserId() != null) {
+            model.changeOnlineStatus(true);
+        }
     }
 
     @Override

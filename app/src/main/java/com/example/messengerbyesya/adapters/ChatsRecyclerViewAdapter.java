@@ -1,5 +1,7 @@
 package com.example.messengerbyesya.adapters;
 
+import android.app.Activity;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.messengerbyesya.R;
@@ -27,6 +30,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+import java.util.Map;
 
 public class ChatsRecyclerViewAdapter {
 
@@ -37,15 +41,19 @@ public class ChatsRecyclerViewAdapter {
     private final FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
     private final FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
     private final StorageReference firebaseStorageRef = firebaseStorage.getReferenceFromUrl("gs://messenger-by-esya.appspot.com/");
+    private Context context;
 
-    public FirestoreRecyclerAdapter getAdapter(FirestoreRecyclerAdapter adapter, String currentUserEmail, ItemClickListener itemClickListener) {
-        Query query = firebaseFirestore.collection("chats").orderBy("date_of_last_message"); //TODO: Добавить фильтрацию по почте текущего пользователя (чтобы чужие чаты не отображались)
+    public FirestoreRecyclerAdapter getAdapter(FirestoreRecyclerAdapter adapter, String currentUserEmail, ItemClickListener itemClickListener, Context context) {
+        Query query = firebaseFirestore.collection("chats").whereArrayContains("users_emails", currentUserEmail).orderBy("date_of_last_message", Query.Direction.DESCENDING);
+
+        this.context = context;
 
         FirestoreRecyclerOptions<Chat> options = new FirestoreRecyclerOptions.Builder<Chat>().setQuery(query, snapshot -> {
             Chat tempChat = new Chat();
             timestamp = (Timestamp) snapshot.get("date_of_last_message");
             tempChat.setDateOfLastMessage(timestamp.toDate());
             tempChat.setUsersEmails((ArrayList<String>) snapshot.get("users_emails"));
+            tempChat.setCountOfUncheckedMessages((Map<String, Long>) snapshot.get("count_of_unchecked_messages"));
             tempChat.setChatId(snapshot.getId());
             return tempChat;
         }).build();
@@ -74,22 +82,36 @@ public class ChatsRecyclerViewAdapter {
                     holder.timeOfLastMessageTextView.setText(new SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH).format(tempDate));
                 }
 
-                if(chat.getUsersEmails().size()==2) {
+                holder.countOfUncheckedMessagesTextView.setText(context.getResources().getQuantityString(R.plurals.new_messages, (int) (long) chat.getCountOfUncheckedMessages().get(currentUserEmail), (int) (long) chat.getCountOfUncheckedMessages().get(currentUserEmail)));
+
+                if (chat.getUsersEmails().size() == 2) {
                     if (chat.getUsersEmails().get(0).equals(currentUserEmail)) {
                         tempEmail = chat.getUsersEmails().get(1);
                     } else {
                         tempEmail = chat.getUsersEmails().get(0);
                     }
+
+                    //TODO: Проверить, удаляются ли слушатели
+                    //TODO: Удалить слушатели при выходе пользователя из аккаунта
+                    //firebaseFirestore.collection("user").whereEqualTo("email", tempEmail).get().addOnSuccessListener(queryDocumentSnapshots -> {
+                    firebaseFirestore.collection("user").whereEqualTo("email", tempEmail).addSnapshotListener((Activity) context, (value, error) -> {
+                        if ((value != null) && (!value.isEmpty())) {
+                            User tempUser = new User();
+                            tempUser = value.getDocuments().get(0).toObject(User.class);
+                            holder.chatNameTextView.setText(tempUser.getName());
+                            if (tempUser.isUserOnline()) {
+                                holder.onlineMarkerImageView.setVisibility(View.VISIBLE);
+                            } else {
+                                holder.onlineMarkerImageView.setVisibility(View.INVISIBLE);
+                            }
+                            firebaseStorageRef.child("avatars/" + tempUser.getAvatar()).getDownloadUrl().addOnSuccessListener(uri -> Picasso.with(holder.chatAvatarImageView.getContext()).load(uri).resize(50, 50).centerCrop().into(holder.chatAvatarImageView));
+                        }
+                    });
                 } else {
-                    //TODO: Добавить код для обозначения беседы из нескольких людей
+                    holder.chatNameTextView.setText("Беседа " + chat.getChatId());
+                    holder.chatAvatarImageView.setImageDrawable(AppCompatResources.getDrawable(holder.chatAvatarImageView.getContext(), R.drawable.message_current_user_background));
                 }
 
-                firebaseFirestore.collection("user").whereEqualTo("email", tempEmail).get().addOnSuccessListener(queryDocumentSnapshots -> {
-                    User tempUser = new User();
-                    tempUser = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
-                    holder.chatNameTextView.setText(tempUser.getName());
-                    firebaseStorageRef.child(tempUser.getAvatar()).getDownloadUrl().addOnSuccessListener(uri -> Picasso.with(holder.chatAvatarImageView.getContext()).load(uri).resize(50, 50).centerCrop().into(holder.chatAvatarImageView));
-                });
 
             }
 
@@ -103,20 +125,24 @@ public class ChatsRecyclerViewAdapter {
         return adapter;
     }
 
-    public interface ItemClickListener{
+    public interface ItemClickListener {
         public void onItemClick(int position);
     }
 
     public static class ChatViewHolder extends RecyclerView.ViewHolder {
         TextView chatNameTextView;
         TextView timeOfLastMessageTextView;
+        TextView countOfUncheckedMessagesTextView;
         ImageView chatAvatarImageView;
+        ImageView onlineMarkerImageView;
 
         ChatViewHolder(View view) {
             super(view);
             chatNameTextView = view.findViewById(R.id.chatNameTextView);
             timeOfLastMessageTextView = view.findViewById(R.id.timeOfLastMessageTextView);
             chatAvatarImageView = view.findViewById(R.id.chatAvatarImageView);
+            countOfUncheckedMessagesTextView = view.findViewById(R.id.countOfUncheckedMessagesTextView);
+            onlineMarkerImageView = view.findViewById(R.id.onlineMarkerImageView);
         }
 
     }

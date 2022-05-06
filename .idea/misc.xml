@@ -11,21 +11,27 @@
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/message_background.xml" value="0.21041666666666667" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/message_current_user_background.xml" value="0.21041666666666667" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/message_other_users_background.xml" value="0.2203125" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/online_marker.xml" value="0.2505" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/paper_clip_icon.xml" value="0.2585" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/search_icon.xml" value="0.2585" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/send_button_text_color.xml" value="0.22135416666666666" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/activity_main.xml" value="0.22" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/change_avatar_dialog.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/change_name_dialog.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/change_password_dialog.xml" value="0.25" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/chat_current_user_recycler_view_item.xml" value="0.33" />
-        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/chat_other_users_recycler_view_item.xml" value="0.33" />
-        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/chat_recycler_view_item.xml" value="0.33" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/chat_other_users_recycler_view_item.xml" value="0.67" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/chat_recycler_view_item.xml" value="0.67" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/fragment_authentification.xml" value="0.20520833333333333" />
-        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/fragment_chat.xml" value="0.2546864899806076" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/fragment_chat.xml" value="0.33" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/fragment_create_chat.xml" value="0.33" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/fragment_log_in.xml" value="0.20520833333333333" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/fragment_registration.xml" value="0.20520833333333333" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/fragment_select_chat.xml" value="0.33" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/fragment_setting.xml" value="0.22" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/header_of_navigation_view.xml" value="0.20520833333333333" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/send_image_dialog.xml" value="0.3625" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/user_recycler_view_item.xml" value="0.3625" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/menu/navigation_view_menu.xml" value="0.20520833333333333" />
       </map>
     </option>

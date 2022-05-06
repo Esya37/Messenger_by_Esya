@@ -1,11 +1,14 @@
 package com.example.messengerbyesya;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.messengerbyesya.model.Chat;
 import com.example.messengerbyesya.model.Message;
 import com.example.messengerbyesya.model.MessengerRepository;
 import com.example.messengerbyesya.model.User;
@@ -16,6 +19,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -26,17 +33,17 @@ public class MainActivityViewModel extends ViewModel {
     private String currentUserId;
     private final MessengerRepository messengerRepository;
     private ExecutorService executorService;
-    private String currentChat;
+    private Chat currentChat;
 
     public MainActivityViewModel() {
         messengerRepository = new MessengerRepository();
     }
 
-    public String getCurrentChat() {
+    public Chat getCurrentChat() {
         return currentChat;
     }
 
-    public void setCurrentChat(String currentChat) {
+    public void setCurrentChat(Chat currentChat) {
         this.currentChat = currentChat;
     }
 
@@ -60,11 +67,11 @@ public class MainActivityViewModel extends ViewModel {
         return messengerRepository.getCurrentFirebaseUser();
     }
 
-    public String createUser(String email, String password) {
+    public LiveData<String> createUser(String email, String password) {
         return messengerRepository.createUser(email, password);
     }
 
-    public String signInWithEmailAndPassword(String email, String password) {
+    public LiveData<String> signInWithEmailAndPassword(String email, String password) {
         return messengerRepository.signInWithEmailAndPassword(email, password);
     }
 
@@ -72,7 +79,7 @@ public class MainActivityViewModel extends ViewModel {
         messengerRepository.signOut();
     }
 
-    public String changePassword(String email, String oldPassword, String newPassword) {
+    public LiveData<String> changePassword(String email, String oldPassword, String newPassword) {
         return messengerRepository.changePassword(email, oldPassword, newPassword);
     }
 
@@ -84,12 +91,42 @@ public class MainActivityViewModel extends ViewModel {
         currentUser = messengerRepository.uploadAvatar(bitmap, user, currentUserId, pd);
     }
 
-    public void uploadTempAvatar(Bitmap bitmap, User user ) {
+    public void uploadTempAvatar(Bitmap bitmap, User user) {
         messengerRepository.uploadTempAvatar(bitmap, user);
     }
 
+    public void sendImage(Message message, Bitmap bitmap) {
+        messengerRepository.sendImage(message, bitmap, currentChat);
+    }
+
     public void sendMessage(Message message) {
-        messengerRepository.sendMessage(message);
+        messengerRepository.sendMessage(message, currentChat);
+    }
+
+    public void readMessage() {
+        messengerRepository.readMessage(currentUser.getEmail(), currentChat);
+    }
+
+    public void changeOnlineStatus(boolean isUserOnline) {
+        messengerRepository.changeOnlineStatus(currentUserId, isUserOnline);
+    }
+
+    public LiveData<Chat> createChat(Map<String, Boolean> usersCheckedMap, Context context) {
+        Chat newChat = new Chat();
+        Map<String, Long> countOfUncheckedMessages = new HashMap<>();
+        ArrayList<String> usersEmails = new ArrayList<>();
+        for (Map.Entry<String, Boolean> entry : usersCheckedMap.entrySet()) {
+            if (entry.getValue()) {
+                countOfUncheckedMessages.put(entry.getKey(), 0L);
+                usersEmails.add(entry.getKey());
+            }
+        }
+
+        newChat.setCountOfUncheckedMessages(countOfUncheckedMessages);
+        newChat.setUsersEmails(usersEmails);
+        newChat.setDateOfLastMessage(new Date());
+
+        return messengerRepository.createChat(newChat, currentUser.getEmail(), context.getString(R.string.user_create_a_chat, currentUser.getName()));
     }
 
     public Task<QuerySnapshot> getCurrentUserFromDB(String email) {

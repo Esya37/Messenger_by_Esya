@@ -90,7 +90,7 @@ public class SettingFragment extends BaseFragment {
             uploadFromDeviceButton = dialogInflatedView.findViewById(R.id.uploadFromDeviceButton);
             uploadWithLinkButton = dialogInflatedView.findViewById(R.id.uploadWithLinkButton);
             photoLinkEditText = dialogInflatedView.findViewById(R.id.photoLinkEditText);
-            currentAvatarImageView = dialogInflatedView.findViewById(R.id.currentAvatarImageView);
+            currentAvatarImageView = dialogInflatedView.findViewById(R.id.pickedImageImageView);
 
             AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
             builder.setView(dialogInflatedView);
@@ -132,7 +132,7 @@ public class SettingFragment extends BaseFragment {
             alertDialog.setOnShowListener(dialog -> {
                 alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
                 if (!(hasConnection(v.getContext()))) {
-                    Toast.makeText(v.getContext(), "Check your Internet connection", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(v.getContext(), getString(R.string.check_your_internet_connection), Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
                     return;
                 }
@@ -150,17 +150,13 @@ public class SettingFragment extends BaseFragment {
 
                     @Override
                     public void onError() {
-//                        if (isUsedGoogleOrYandexImages) {
-                        Toast.makeText(getContext(), "Что-то пошло не так:( Попробуйте вставить другую ссылку или сохраните изображение в память устройства", Toast.LENGTH_LONG).show();
-//                        } else {
-//                            Toast.makeText(getContext(), "Что-то пошло не так:( Попробуйте вставить ссылку из Google Картинки или Яндекс.Картинки", Toast.LENGTH_LONG).show();
-//                        }
+                        Toast.makeText(getContext(), getString(R.string.something_went_wrong_try_inserting_another_link_or_saving_the_image_to_the_device_memory), Toast.LENGTH_LONG).show();
                     }
                 }));
 
                 alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v12 -> {
                     if (!(hasConnection(v12.getContext()))) {
-                        Toast.makeText(v12.getContext(), "Check your Internet connection", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(v12.getContext(), getString(R.string.check_your_internet_connection), Toast.LENGTH_SHORT).show();
                         return;
                     }
                     currentAvatarImageView.setDrawingCacheEnabled(true);

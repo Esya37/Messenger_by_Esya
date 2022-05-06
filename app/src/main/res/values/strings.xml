@@ -35,6 +35,23 @@
     <string name="upload_with_link">Загрузить по ссылке</string>
     <string name="avatar">Avatar</string>
     <string name="start_new_dialog">+ Начать новый диалог</string>
-    <string name="new_messages">0 новых(ое) сообщений(ие)</string>  <!-- TODO: Убрать 0 -->
+
+    <plurals name="new_messages">
+        <item quantity="zero">Нет новых сообщений</item> <!--TODO: Добавить Нет сообщений -->
+        <item quantity="one">%d новое сообщение</item>
+        <item quantity="two">%d новых сообщения</item>
+        <item quantity="few">%d новых сообщений</item>
+        <item quantity="many">%d новых сообщений</item>
+        <item quantity="other">%d новых сообщений</item>
+    </plurals>
+
+    <string name="enter_user_email">Введите адрес электронной почты пользователя</string>
+    <string name="enter_user_name">Введите имя пользователя</string>
+    <string name="you_cant_not_be_a_chat_participant">Вы не можете не быть участником чата</string>
+    <string name="user_create_a_chat">%1$s создает чат</string>
+    <string name="something_went_wrong_try_inserting_another_link_or_saving_the_image_to_the_device_memory">Что-то пошло не так:( Попробуйте вставить другую ссылку или сохраните изображение в память устройства</string>
+    <string name="check_your_internet_connection">Проверьте подключение к Интернету</string>
+    <string name="send_image">Отправить изображение?</string>
+    <string name="users_cant_be_less_than_2">Пользователей не может быть меньше 2</string>
 
 </resources>

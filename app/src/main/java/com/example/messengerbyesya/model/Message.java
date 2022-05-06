@@ -1,6 +1,7 @@
 package com.example.messengerbyesya.model;
 
 import com.google.firebase.firestore.Exclude;
+import com.google.firebase.firestore.PropertyName;
 
 import java.util.Date;
 
@@ -8,30 +9,35 @@ public class Message {
     private String text;
     private Date date;
     private User sender;
-    private String sender_email;
+    private String senderEmail;
+    private Boolean isMediaResource;
 
     public Message() {
     }
 
-    public Message(String text, Date date, User sender, String sender_email) {
+    public Message(String text, Date date, User sender, String senderEmail) {
         this.text = text;
         this.date = date;
         this.sender = sender;
-        this.sender_email = sender_email;
+        this.senderEmail = senderEmail;
+        this.isMediaResource = false;
     }
 
-    public Message(String text, Date date, String sender_email) {
+    public Message(String text, Date date, String senderEmail) {
         this.text = text;
         this.date = date;
-        this.sender_email = sender_email;
+        this.senderEmail = senderEmail;
+        this.isMediaResource = false;
     }
 
-    public String getSender_email() {
-        return sender_email;
+    @PropertyName("sender_email")
+    public String getSenderEmail() {
+        return senderEmail;
     }
 
-    public void setSender_email(String sender_email) {
-        this.sender_email = sender_email;
+    @PropertyName("sender_email")
+    public void setSenderEmail(String senderEmail) {
+        this.senderEmail = senderEmail;
     }
 
     public String getText() {
@@ -48,6 +54,16 @@ public class Message {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    @PropertyName("is_media_resource")
+    public Boolean getMediaResource() {
+        return isMediaResource;
+    }
+
+    @PropertyName("is_media_resource")
+    public void setMediaResource(Boolean mediaResource) {
+        isMediaResource = mediaResource;
     }
 
     @Exclude

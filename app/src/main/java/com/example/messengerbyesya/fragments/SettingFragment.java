@@ -92,6 +92,7 @@ public class SettingFragment extends BaseFragment {
             photoLinkEditText = dialogInflatedView.findViewById(R.id.photoLinkEditText);
             currentAvatarImageView = dialogInflatedView.findViewById(R.id.pickedImageImageView);
 
+            currentAvatarImageView.setContentDescription("Ваш текущий аватар");
             AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
             builder.setView(dialogInflatedView);
             builder.setPositiveButton(R.string.accept, null);
@@ -102,6 +103,7 @@ public class SettingFragment extends BaseFragment {
                 photoPickerIntent.setType("image/*");
                 someActivityResultLauncher.launch(photoPickerIntent);
 
+                currentAvatarImageView.setContentDescription("Ваш измененный аватар");
                 alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
             });
 
@@ -116,11 +118,13 @@ public class SettingFragment extends BaseFragment {
                         @Override
                         public void onSuccess() {
                             pd.dismiss();
+                            currentAvatarImageView.setContentDescription("Ваш измененный аватар");
                             alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
                         }
 
                         @Override
                         public void onError() {
+                            Toast.makeText(getContext(), getString(R.string.something_went_wrong_try_inserting_another_link_or_saving_the_image_to_the_device_memory), Toast.LENGTH_LONG).show();
                             pd.dismiss();
                         }
                     });
@@ -145,12 +149,13 @@ public class SettingFragment extends BaseFragment {
                 model.getAvatar(model.getCurrentUser()).addOnSuccessListener(uri -> Picasso.with(getContext()).load(uri).into(currentAvatarImageView, new Callback() {
                     @Override
                     public void onSuccess() {
+                        currentAvatarImageView.setContentDescription("Ваш текущий аватар");
                         pd.dismiss();
                     }
 
                     @Override
                     public void onError() {
-                        Toast.makeText(getContext(), getString(R.string.something_went_wrong_try_inserting_another_link_or_saving_the_image_to_the_device_memory), Toast.LENGTH_LONG).show();
+
                     }
                 }));
 
@@ -176,9 +181,20 @@ public class SettingFragment extends BaseFragment {
     public void buttonSetOnClickListener(int buttonId, Dialogs.DialogType dialogType) {
 
         settingItemButton = inflatedView.findViewById(buttonId);
-        settingItemButton.setOnClickListener(v -> dialogs.getDialog(requireActivity(), dialogType, model.getCurrentUser(), model.getCurrentUserId()).show());
+        settingItemButton.setOnClickListener(v -> dialogs.getDialog(requireActivity(), dialogType, model.getCurrentUser(), model.getCurrentUserId(), null).show());
 
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        model.changeOnlineStatus(false);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        model.changeOnlineStatus(true);
+    }
 
 }

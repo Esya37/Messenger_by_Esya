@@ -10,6 +10,7 @@ public class Message {
     private Date date;
     private User sender;
     private String senderEmail;
+    private String contentDescription;
     private Boolean isMediaResource;
 
     public Message() {
@@ -54,6 +55,16 @@ public class Message {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    @PropertyName("content_description")
+    public String getContentDescription() {
+        return contentDescription;
+    }
+
+    @PropertyName("content_description")
+    public void setContentDescription(String contentDescription) {
+        this.contentDescription = contentDescription;
     }
 
     @PropertyName("is_media_resource")

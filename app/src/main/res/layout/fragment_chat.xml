@@ -12,14 +12,28 @@
         android:layout_height="match_parent"
         android:background="@color/authentification_background">
 
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/chatImageImageView"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:accessibilityLiveRegion="assertive"
+            android:importantForAccessibility="yes"
+            app:layout_constraintBottom_toBottomOf="@+id/openNavigationViewButton"
+            app:layout_constraintStart_toEndOf="@+id/openNavigationViewButton"
+            app:layout_constraintTop_toTopOf="@+id/openNavigationViewButton"
+            app:shapeAppearanceOverlay="@style/image_view_style"
+            tools:srcCompat="@tools:sample/avatars" />
+
         <Button
             android:id="@+id/sendMessageButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="20dp"
+            android:accessibilityLiveRegion="assertive"
             android:background="@android:color/transparent"
             android:backgroundTint="@android:color/transparent"
+            android:importantForAccessibility="yes"
             android:text="@string/send"
             android:textAllCaps="false"
             android:textColor="@color/send_button_text_color"
@@ -33,12 +47,16 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
+            android:accessibilityLiveRegion="assertive"
+            android:autofillHints=""
             android:background="@drawable/input_message_field"
             android:ems="10"
             android:hint="@string/enter_message"
+            android:importantForAccessibility="yes"
             android:inputType="textCapSentences"
             android:paddingTop="7dp"
             android:paddingBottom="7dp"
+            android:textColorHint="@color/authentification_text_hint"
             android:textSize="20sp"
             app:layout_constraintBaseline_toBaselineOf="@+id/sendMessageButton"
             app:layout_constraintEnd_toStartOf="@+id/sendMessageButton"
@@ -48,11 +66,14 @@
             android:id="@+id/messagesRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            app:layout_constraintBottom_toTopOf="@+id/editTextMessage"
+            android:accessibilityLiveRegion="assertive"
+            android:importantForAccessibility="yes"
+            app:layout_constraintBottom_toTopOf="@+id/sendMessageButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/chatImageImageView" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/openNavigationViewButton"
@@ -60,7 +81,11 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
+            android:accessibilityLiveRegion="assertive"
             android:clickable="true"
+            android:contentDescription="@string/open_menu"
+            android:focusable="true"
+            android:importantForAccessibility="yes"
             android:src="@drawable/menu_hamburger_icon"
             app:backgroundTint="@android:color/transparent"
             app:borderWidth="0dp"
@@ -78,11 +103,45 @@
             android:layout_marginStart="10dp"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp"
+            android:accessibilityLiveRegion="assertive"
             android:background="@drawable/paper_clip_icon"
+            android:contentDescription="@string/attach_attachments"
+            android:importantForAccessibility="yes"
             app:layout_constraintBottom_toBottomOf="@+id/editTextMessage"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/editTextMessage" />
+
+        <TextView
+            android:id="@+id/chatOrUserNameTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:accessibilityLiveRegion="assertive"
+            android:ellipsize="end"
+            android:importantForAccessibility="yes"
+            android:maxLines="1"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="@+id/openNavigationViewButton"
+            app:layout_constraintEnd_toStartOf="@+id/optionButton"
+            app:layout_constraintStart_toEndOf="@+id/chatImageImageView"
+            app:layout_constraintTop_toTopOf="@+id/openNavigationViewButton"
+            tools:text="Название беседы" />
+
+        <Button
+            android:id="@+id/optionButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="10dp"
+            android:accessibilityLiveRegion="assertive"
+            android:background="@drawable/options_button_icon"
+            android:contentDescription="@string/open_settings"
+            android:importantForAccessibility="yes"
+            app:layout_constraintBottom_toBottomOf="@+id/openNavigationViewButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/openNavigationViewButton" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.navigation.NavigationView
@@ -90,7 +149,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:accessibilityLiveRegion="assertive"
         android:background="@color/authentification_background"
+        android:importantForAccessibility="yes"
         app:headerLayout="@layout/header_of_navigation_view"
         app:itemTextColor="@color/white"
         app:menu="@menu/navigation_view_menu" />

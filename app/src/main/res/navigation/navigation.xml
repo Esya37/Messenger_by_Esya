@@ -32,7 +32,29 @@
         <action
             android:id="@+id/action_chatFragment_to_authentificationFragment"
             app:destination="@id/authentificationFragment"
+            app:enterAnim="@anim/from_0wight_to_100width_animation"
+            app:exitAnim="@anim/from_center_to_right_animation"
             app:popUpTo="@id/navigation" />
+        <action
+            android:id="@+id/action_chatFragment_to_selectChatFragment"
+            app:destination="@id/selectChatFragment"
+            app:enterAnim="@anim/from_0wight_to_100width_animation"
+            app:exitAnim="@anim/from_center_to_right_animation"
+            app:popUpTo="@id/navigation" />
+        <action
+            android:id="@+id/action_chatFragment_to_createChatFragment"
+            app:destination="@id/createChatFragment"
+            app:enterAnim="@anim/from_down_to_center_animation"
+            app:exitAnim="@anim/from_nothing_to_nothing_animation"
+            app:popEnterAnim="@anim/from_nothing_to_nothing_animation"
+            app:popExitAnim="@anim/from_center_to_down_animation" />
+        <action
+            android:id="@+id/action_chatFragment_to_showParticipantsOrAttachmentsFragment"
+            app:destination="@id/showParticipantsOrAttachmentsFragment"
+            app:enterAnim="@anim/from_right_to_center_animation"
+            app:exitAnim="@anim/from_100width_to_0width_animation"
+            app:popEnterAnim="@anim/from_0wight_to_100width_animation"
+            app:popExitAnim="@anim/from_center_to_right_animation" />
     </fragment>
     <fragment
         android:id="@+id/settingFragment"
@@ -85,4 +107,9 @@
             app:popExitAnim="@anim/from_center_to_right_animation"
             app:popUpTo="@id/selectChatFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/showParticipantsOrAttachmentsFragment"
+        android:name="com.example.messengerbyesya.fragments.ShowParticipantsOrAttachmentsFragment"
+        android:label="fragment_show_participants"
+        tools:layout="@layout/fragment_show_participants_or_attachments" />
 </navigation>

@@ -18,10 +18,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Date;
+import java.util.List;
 
 public class FirestoreService {
 
@@ -60,8 +62,43 @@ public class FirestoreService {
         firebaseStorageRef.child("avatars/none_" + user.getEmail()).putBytes(data);
     }
 
+    public Task<Uri> getChatAvatar(String chatAvatarPath) {
+        return firebaseStorageRef.child(chatAvatarPath).getDownloadUrl();
+    }
+
+    public void uploadChatAvatar(Bitmap bitmap, Chat chat, ProgressDialog pd) {
+
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        data = baos.toByteArray();
+        baos.reset();
+
+        chat.setChatAvatar("chats_avatars/" + chat.getChatId());
+
+        firebaseStorageRef.child(chat.getChatAvatar()).putBytes(data).addOnCompleteListener(task -> {
+            if (!task.isSuccessful()) {
+                Toast.makeText(pd.getContext(), "Что-то пошло не так, попробуйте еще раз", Toast.LENGTH_LONG).show();
+            } else {
+                firebaseFirestore.collection("chats").document(chat.getChatId()).set(chat);
+            }
+            pd.dismiss();
+        });
+
+    }
+
+    public Task<Uri> getImageDownloadUrl(String imagePath) {
+        return firebaseStorageRef.child(imagePath).getDownloadUrl();
+    }
+
+    public Task<ListResult> getImagesFromFolder(String folderPath) {
+        return firebaseStorageRef.child(folderPath).listAll();
+    }
+
     public void setUser(User user, String userId) {
         firebaseFirestore.collection("user").document(userId).set(user);
+    }
+
+    public void setChat(Chat chat) {
+        firebaseFirestore.collection("chats").document(chat.getChatId()).set(chat);
     }
 
     public Task<Void> deleteImage(String imagePath) {
@@ -118,8 +155,11 @@ public class FirestoreService {
                 @Override
                 public void onSuccess(DocumentReference documentReference1) {
                     documentReference.get().addOnSuccessListener(documentSnapshot -> {
-                        createdChat.setValue(documentSnapshot.toObject(Chat.class));
-                        createdChat.getValue().setChatId(documentSnapshot.getId());
+                        firebaseFirestore.collection("chats").document(documentSnapshot.getId()).update("chat_name", "Чат " + documentSnapshot.getId()).addOnSuccessListener(unused -> {
+                            createdChat.setValue(documentSnapshot.toObject(Chat.class));
+                            createdChat.getValue().setChatId(documentSnapshot.getId());
+                            createdChat.getValue().setChatName("Чат " + documentSnapshot.getId());
+                        });
                     });
                 }
             });
@@ -128,7 +168,44 @@ public class FirestoreService {
         return createdChat;
     }
 
-    public Task<QuerySnapshot> getCurrentUserFromDB(String email) {
+    public void inviteParticipants(Chat chat, User currentUser, List<User> newChatUsers) {
+        WriteBatch writeBatch = firebaseFirestore.batch();
+        writeBatch.update(firebaseFirestore.collection("chats").document(chat.getChatId()), "users_emails", chat.getUsersEmails());
+        writeBatch.update(firebaseFirestore.collection("chats").document(chat.getChatId()), "count_of_unchecked_messages", chat.getCountOfUncheckedMessages());
+
+        for (int i = 0; i < newChatUsers.size(); i++) {
+            writeBatch.set(firebaseFirestore.collection("chats").document(chat.getChatId()).collection("messages").document(), new Message(
+                    "Пользователь " + currentUser.getName() + " пригласил в чат пользователя " + newChatUsers.get(i).getName(),
+                    new Date(),
+                    currentUser.getEmail()
+            ));
+        }
+        writeBatch.commit();
+    }
+
+    public void leaveFromChat(Chat chat, User currentUser) {
+        if (chat.getUsersEmails().size() == 2) {
+            chat.setChatName(currentUser.getName());
+            chat.setChatAvatar("avatars/" + currentUser.getAvatar());
+        }
+        chat.getUsersEmails().remove(currentUser.getEmail());
+        chat.getCountOfUncheckedMessages().remove(currentUser.getEmail());
+
+        for (int i = 0; i < chat.getUsersEmails().size(); i++) {
+            chat.getCountOfUncheckedMessages().put(chat.getUsersEmails().get(i), chat.getCountOfUncheckedMessages().get(chat.getUsersEmails().get(i)) + 1);
+        }
+
+        WriteBatch writeBatch = firebaseFirestore.batch();
+        writeBatch.set(firebaseFirestore.collection("chats").document(chat.getChatId()), chat);
+        writeBatch.set(firebaseFirestore.collection("chats").document(chat.getChatId()).collection("messages").document(), new Message(
+                "Пользователь " + currentUser.getName() + " покинул чат",
+                new Date(),
+                currentUser.getEmail()
+        ));
+        writeBatch.commit();
+    }
+
+    public Task<QuerySnapshot> getUserFromDB(String email) {
         return firebaseFirestore.collection("user").whereEqualTo("email", email).get();
     }
 

@@ -1,6 +1,5 @@
 package com.example.messengerbyesya.fragments;
 
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +11,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -26,12 +24,10 @@ import com.example.messengerbyesya.model.User;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
 
 import java.util.Random;
 
-public class SelectChatFragment extends Fragment {
+public class SelectChatFragment extends BaseFragment {
 
     public static SelectChatFragment newInstance() {
         return new SelectChatFragment();
@@ -78,58 +74,20 @@ public class SelectChatFragment extends Fragment {
         nameTextView = header.findViewById(R.id.nameTextView);
         avatarImageView = header.findViewById(R.id.avatarImageView);
 
+        avatarImageView.setContentDescription("Ваш аватар");
         startNewDialogButton = inflatedView.findViewById(R.id.startNewDialogButton);
         startNewDialogButton.setEnabled(false);
 
         random = new Random();
 
-        model.getCurrentUserFromDB(model.getCurrentFirebaseUser().getEmail()).addOnSuccessListener(queryDocumentSnapshots -> {
+        model.getUserFromDB(model.getCurrentFirebaseUser().getEmail()).addOnSuccessListener(queryDocumentSnapshots -> {
             model.setCurrentUser(queryDocumentSnapshots.getDocuments().get(0).toObject(User.class));
             model.setCurrentUserId(queryDocumentSnapshots.getDocuments().get(0).getId());
             startNewDialogButton.setEnabled(true);
             model.changeOnlineStatus(true);
             nameTextView.setText(model.getCurrentUser().getName());
-            if (model.getCurrentUser().getAvatar().equals("none")) {
-                if (model.getCurrentUser().getName().split(" ").length > 2) {
-                    model.getCurrentUser().setAvatar("none_" + model.getCurrentUser().getEmail());
-                    model.setUser(model.getCurrentUser(), model.getCurrentUserId());
-                    //firebaseFirestore.collection("user").document(model.getCurrentUserId()).set(model.getCurrentUser());
 
-                    Picasso.with(getContext()).load("https://eu.ui-avatars.com/api/?name=" + model.getCurrentUser().getName().split(" ")[2] + "&size=512?&background=" + generateRandomColorHex()).into(avatarImageView, new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            avatarImageView.setDrawingCacheEnabled(true);
-                            avatarImageView.buildDrawingCache();
-                            model.uploadTempAvatar(((BitmapDrawable) avatarImageView.getDrawable()).getBitmap(), model.getCurrentUser());
-                        }
-
-                        @Override
-                        public void onError() {
-
-                        }
-                    });
-
-                } else {
-                    model.getCurrentUser().setAvatar("none_" + model.getCurrentUser().getEmail());
-                    model.setUser(model.getCurrentUser(), model.getCurrentUserId());
-                    // firebaseFirestore.collection("user").document(model.getCurrentUserId()).set(model.getCurrentUser());
-                    Picasso.with(getContext()).load("https://eu.ui-avatars.com/api/?name=" + model.getCurrentUser().getName().split(" ")[0] + "%20" + model.getCurrentUser().getName().split(" ")[1] + "&size=512?&background=" + generateRandomColorHex()).into(avatarImageView, new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            avatarImageView.setDrawingCacheEnabled(true);
-                            avatarImageView.buildDrawingCache();
-                            model.uploadTempAvatar(((BitmapDrawable) avatarImageView.getDrawable()).getBitmap(), model.getCurrentUser());
-                        }
-
-                        @Override
-                        public void onError() {
-
-                        }
-                    });
-                }
-            } else {
-                model.getAvatar(model.getCurrentUser()).addOnSuccessListener(uri -> Picasso.with(getContext()).load(uri).into(avatarImageView));
-            }
+            checkAvatar(model, avatarImageView);
 
             class onItemClickListenerClass implements ChatsRecyclerViewAdapter.ItemClickListener {
 
@@ -184,6 +142,7 @@ public class SelectChatFragment extends Fragment {
         });
 
         startNewDialogButton.setOnClickListener(view12 -> {
+            model.setCurrentActionType(CreateChatFragment.ActionType.createChat);
             Navigation.findNavController(inflatedView).navigate(R.id.action_selectChatFragment_to_createChatFragment);
         });
 

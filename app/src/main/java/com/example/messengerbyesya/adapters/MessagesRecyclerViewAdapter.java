@@ -22,7 +22,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
@@ -36,7 +35,6 @@ public class MessagesRecyclerViewAdapter {
     private Date tempDate;
     private final Calendar dateNowCalendar = new GregorianCalendar();
     private Timestamp timestamp;
-    private OnSuccessListener onSuccessListener;
     private final FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
     private final FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
     private final StorageReference firebaseStorageRef = firebaseStorage.getReferenceFromUrl("gs://messenger-by-esya.appspot.com/");
@@ -53,7 +51,7 @@ public class MessagesRecyclerViewAdapter {
             tempMessage.setText((String) snapshot.get("text"));
             tempMessage.setMediaResource((Boolean) snapshot.get("is_media_resource"));
             tempMessage.setSenderEmail((String) snapshot.get("sender_email"));
-
+            tempMessage.setContentDescription((String) snapshot.get("content_description"));
             return tempMessage;
         }).build();
 
@@ -77,17 +75,8 @@ public class MessagesRecyclerViewAdapter {
 
             private void onBindViewHolderOtherUsers(OtherUsersViewHolder holder, Message message) {
                 if(message.getMediaResource()){
-                    firebaseStorageRef.child("chats_media_resources/" + currentChatId + "/" + message.getText()).getDownloadUrl().addOnSuccessListener(uri -> Picasso.with(holder.messageImageImageView.getContext()).load(uri).into(holder.messageImageImageView, new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            onSuccessListener.onSuccess();
-                        }
-
-                        @Override
-                        public void onError() {
-
-                        }
-                    }));
+                    firebaseStorageRef.child("chats_media_resources/" + currentChatId + "/" + message.getText()).getDownloadUrl().addOnSuccessListener(uri -> Picasso.with(holder.messageImageImageView.getContext()).load(uri).into(holder.messageImageImageView));
+                    holder.messageImageImageView.setContentDescription(message.getContentDescription());
                     holder.messageTextView.setVisibility(View.GONE);
                     holder.messageImageImageView.setVisibility(View.VISIBLE);
 
@@ -100,6 +89,12 @@ public class MessagesRecyclerViewAdapter {
                     holder.messageTextView.setText(message.getText());
                     holder.messageTextView.setVisibility(View.VISIBLE);
                     holder.messageImageImageView.setVisibility(View.GONE);
+
+                    ConstraintSet constraintSet = new ConstraintSet();
+                    constraintSet.clone(holder.constraintLayout);
+                    constraintSet.connect(holder.senderAvatarImageView.getId(), ConstraintSet.BOTTOM, holder.messageTextView.getId(), ConstraintSet.BOTTOM);
+                    constraintSet.connect(holder.timeTextView.getId(), ConstraintSet.TOP, holder.messageTextView.getId(), ConstraintSet.BOTTOM);
+                    constraintSet.applyTo(holder.constraintLayout);
                 }
 
                 tempDate = new Date();
@@ -121,6 +116,8 @@ public class MessagesRecyclerViewAdapter {
                     tempUser = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
                     message.setSender(tempUser);
                     holder.senderNameTextView.setText(message.getSender().getName());
+                    holder.senderAvatarImageView.setImageDrawable(null);
+                    holder.senderAvatarImageView.setContentDescription("Аватар пользователя " + tempUser.getName());
                     firebaseStorageRef.child("avatars/" + message.getSender().getAvatar()).getDownloadUrl().addOnSuccessListener(uri -> Picasso.with(holder.senderAvatarImageView.getContext()).load(uri).fit().centerCrop().into(holder.senderAvatarImageView));
                 });
             }
@@ -128,17 +125,8 @@ public class MessagesRecyclerViewAdapter {
             private void onBindViewHolderCurrentUser(CurrentUserViewHolder holder, Message message) {
 
                 if(message.getMediaResource()){
-                    firebaseStorageRef.child("chats_media_resources/" + currentChatId + "/" + message.getText()).getDownloadUrl().addOnSuccessListener(uri -> Picasso.with(holder.messageImageImageView.getContext()).load(uri).into(holder.messageImageImageView, new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            onSuccessListener.onSuccess();
-                        }
-
-                        @Override
-                        public void onError() {
-
-                        }
-                    }));
+                    firebaseStorageRef.child("chats_media_resources/" + currentChatId + "/" + message.getText()).getDownloadUrl().addOnSuccessListener(uri -> Picasso.with(holder.messageImageImageView.getContext()).load(uri).into(holder.messageImageImageView));
+                    holder.messageImageImageView.setContentDescription(message.getContentDescription());
                     holder.messageTextView.setVisibility(View.GONE);
                     holder.messageImageImageView.setVisibility(View.VISIBLE);
                     holder.barrier.addView(holder.messageImageImageView);
@@ -151,7 +139,14 @@ public class MessagesRecyclerViewAdapter {
                 } else {
                     holder.messageTextView.setText(message.getText());
                     holder.messageTextView.setVisibility(View.VISIBLE);
-                   // holder.messageImageImageView.setVisibility(View.GONE);
+                    holder.messageImageImageView.setVisibility(View.GONE);
+                    holder.barrier.removeView(holder.messageImageImageView);
+
+                    ConstraintSet constraintSet = new ConstraintSet();
+                    constraintSet.clone(holder.constraintLayout);
+                    constraintSet.connect(holder.senderAvatarImageView.getId(), ConstraintSet.BOTTOM, holder.messageTextView.getId(), ConstraintSet.BOTTOM);
+                    constraintSet.connect(holder.timeTextView.getId(), ConstraintSet.TOP, holder.messageTextView.getId(), ConstraintSet.BOTTOM);
+                    constraintSet.applyTo(holder.constraintLayout);
                 }
 
                 tempDate = new Date();
@@ -173,6 +168,8 @@ public class MessagesRecyclerViewAdapter {
                     tempUser = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
                     message.setSender(tempUser);
                     holder.senderNameTextView.setText(message.getSender().getName());
+                    holder.senderAvatarImageView.setImageDrawable(null);
+                    holder.senderAvatarImageView.setContentDescription("Аватар пользователя " + tempUser.getName());
                     firebaseStorageRef.child("avatars/" + message.getSender().getAvatar()).getDownloadUrl().addOnSuccessListener(uri -> Picasso.with(holder.senderAvatarImageView.getContext()).load(uri).fit().centerCrop().into(holder.senderAvatarImageView));
                 });
             }
@@ -201,14 +198,6 @@ public class MessagesRecyclerViewAdapter {
             }
         };
         return adapter;
-    }
-
-    public void setOnSuccessListener(OnSuccessListener onSuccessListener) {
-        this.onSuccessListener = onSuccessListener;
-    }
-
-    public interface OnSuccessListener{
-        public void onSuccess();
     }
 
     public static class OtherUsersViewHolder extends RecyclerView.ViewHolder {

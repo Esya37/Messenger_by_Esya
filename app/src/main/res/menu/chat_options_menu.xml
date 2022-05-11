@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/showChatParticipants"
+        android:orderInCategory="1"
+        android:title="@string/participants" />
+    <item
+        android:id="@+id/showChatAttachments"
+        android:orderInCategory="2"
+        android:title="@string/attachments" />
+    <item
+        android:id="@+id/changeChatName"
+        android:orderInCategory="3"
+        android:title="@string/change_chat_name" />
+    <item
+        android:id="@+id/changeChatAvatar"
+        android:orderInCategory="4"
+        android:title="@string/change_chat_avatar" />
+    <item
+        android:id="@+id/deleteChatAvatar"
+        android:orderInCategory="5"
+        android:title="@string/delete_chat_avatar" />
+    <item
+        android:id="@+id/leaveFromChat"
+        android:orderInCategory="6"
+        android:title="@string/leave_from_chat" />
+    <item
+        android:id="@+id/inviteParticipants"
+        android:orderInCategory="0"
+        android:title="@string/invite_participants" />
+</menu>

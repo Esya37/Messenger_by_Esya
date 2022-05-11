@@ -13,6 +13,8 @@ public class Chat {
     private Date dateOfLastMessage;
     private ArrayList<String> usersEmails;
     private Map<String, Long> countOfUncheckedMessages;
+    private String chatName;
+    private String chatAvatar;
     private String chatId;
 
     public Chat(){
@@ -65,5 +67,25 @@ public class Chat {
     @PropertyName("count_of_unchecked_messages")
     public void setCountOfUncheckedMessages(Map<String, Long> countOfUncheckedMessages) {
         this.countOfUncheckedMessages = countOfUncheckedMessages;
+    }
+
+    @PropertyName("chat_name")
+    public String getChatName() {
+        return chatName;
+    }
+
+    @PropertyName("chat_name")
+    public void setChatName(String chatName) {
+        this.chatName = chatName;
+    }
+
+    @PropertyName("chat_avatar")
+    public String getChatAvatar() {
+        return chatAvatar;
+    }
+
+    @PropertyName("chat_avatar")
+    public void setChatAvatar(String chatAvatar) {
+        this.chatAvatar = chatAvatar;
     }
 }

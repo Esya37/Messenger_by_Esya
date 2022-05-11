@@ -11,6 +11,9 @@ import com.example.messengerbyesya.services.FirestoreService;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.ListResult;
+
+import java.util.List;
 
 public class MessengerRepository {
 
@@ -54,8 +57,28 @@ public class MessengerRepository {
         firestoreService.uploadTempAvatar(bitmap, user);
     }
 
+    public Task<Uri> getChatAvatar(String chatAvatarPath) {
+        return firestoreService.getChatAvatar(chatAvatarPath);
+    }
+
+    public void uploadChatAvatar(Bitmap bitmap, Chat chat, ProgressDialog pd) {
+        firestoreService.uploadChatAvatar(bitmap, chat, pd);
+    }
+
+    public Task<Uri> getImageDownloadUrl (String imagePath) {
+        return firestoreService.getImageDownloadUrl(imagePath);
+    }
+
+    public Task<ListResult> getImagesFromFolder(String folderPath) {
+        return firestoreService.getImagesFromFolder(folderPath);
+    }
+
     public void setUser(User user, String userId) {
         firestoreService.setUser(user, userId);
+    }
+
+    public void setChat(Chat chat) {
+        firestoreService.setChat(chat);
     }
 
     public Task<Void> deleteImage(String imagePath) {
@@ -82,8 +105,16 @@ public class MessengerRepository {
         return firestoreService.createChat(chat, currentUserEmail, startChatText);
     }
 
-    public Task<QuerySnapshot> getCurrentUserFromDB(String email) {
-        return firestoreService.getCurrentUserFromDB(email);
+    public void inviteParticipants(Chat chat, User currentUser, List<User> newChatUsers) {
+        firestoreService.inviteParticipants(chat, currentUser, newChatUsers);
+    }
+
+    public void leaveFromChat(Chat chat, User currentUser) {
+        firestoreService.leaveFromChat(chat, currentUser);
+    }
+
+    public Task<QuerySnapshot> getUserFromDB(String email) {
+        return firestoreService.getUserFromDB(email);
     }
 
 

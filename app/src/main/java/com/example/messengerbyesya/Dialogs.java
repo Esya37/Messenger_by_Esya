@@ -8,6 +8,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -16,6 +17,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 
+import com.example.messengerbyesya.model.Chat;
 import com.example.messengerbyesya.model.User;
 
 public class Dialogs {
@@ -24,7 +26,8 @@ public class Dialogs {
         changeName,
         changePassword,
         changeAvatar,
-        deleteAvatar
+        deleteAvatar,
+        changeChatName
     }
 
     private View inflatedView;
@@ -36,7 +39,7 @@ public class Dialogs {
     private ProgressDialog pd;
     private MainActivityViewModel model;
 
-    public AlertDialog getDialog(Activity activity, DialogType dialogType, User currentUser, String currentUserId) {
+    public AlertDialog getDialog(Activity activity, DialogType dialogType, User currentUser, String currentUserId, Chat currentChat) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         AlertDialog alertDialog;
 
@@ -119,7 +122,7 @@ public class Dialogs {
                     pd.show();
 
                     model.changePassword(model.getCurrentUser().getEmail(), oldPasswordEditText.getText().toString(), newPasswordEditText.getText().toString()).observe((LifecycleOwner) activity, (Observer<String>) s -> {
-                        if(!s.equals("")) {
+                        if (!s.equals("")) {
                             pd.dismiss();
                         }
                         switch (s) {
@@ -144,8 +147,7 @@ public class Dialogs {
                 return alertDialog;
             case changeAvatar:
 
-
-                return builder.create();
+                return null;
             case deleteAvatar:
                 builder.setMessage(R.string.delete_avatar_confirm);
                 builder.setNegativeButton(R.string.no, (dialog, which) -> dialog.cancel());
@@ -174,6 +176,30 @@ public class Dialogs {
                     dialog.dismiss();
                 }));
 
+                return alertDialog;
+            case changeChatName:
+                inflatedView = activity.getLayoutInflater().inflate(R.layout.change_name_dialog, null);
+                changeNameEditText = inflatedView.findViewById(R.id.changeNameEditText);
+                changeNameEditText.setText(currentChat.getChatName());
+                ((TextView) inflatedView.findViewById(R.id.textView3)).setText(R.string.rename_chat_name_and_press_accept_button);
+                builder.setView(inflatedView);
+                builder.setPositiveButton(R.string.accept, null);
+                builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
+                alertDialog = builder.create();
+                alertDialog.setOnShowListener(dialog -> alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
+                    if (!(hasConnection(v.getContext()))) {
+                        Toast.makeText(v.getContext(), "Check your Internet connection", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if (changeNameEditText.getText().toString().isEmpty()) {
+                        changeNameEditText.setError("Имя не должно быть пустым");
+                        return;
+                    }
+                    changeNameEditText.setError(null);
+                    currentChat.setChatName(changeNameEditText.getText().toString());
+                    model.setChat(currentChat);
+                    dialog.dismiss();
+                }));
                 return alertDialog;
             default:
                 return null;

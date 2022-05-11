@@ -10,11 +10,14 @@
         android:id="@+id/avatarImageView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:accessibilityLiveRegion="assertive"
         android:adjustViewBounds="true"
+        android:contentDescription="@string/avatar"
+        android:importantForAccessibility="yes"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/avatars[0]"
-        android:contentDescription="@string/avatar" />
+        tools:ignore="ImageContrastCheck"
+        tools:srcCompat="@tools:sample/avatars[0]" />
 
     <TextView
         android:id="@+id/nameTextView"
@@ -24,6 +27,8 @@
         android:layout_marginTop="20dp"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="20dp"
+        android:accessibilityLiveRegion="assertive"
+        android:importantForAccessibility="yes"
         android:textColor="@color/authentification_text"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"

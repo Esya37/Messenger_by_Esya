@@ -41,6 +41,7 @@ public class AuthentificationService {
 
     public LiveData<String> signInWithEmailAndPassword(String email, String password) {
         authTask = firebaseAuth.signInWithEmailAndPassword(email, password);
+        result.setValue("");
         authTask.addOnCompleteListener((OnCompleteListener<AuthResult>) task -> {
             if (task.isSuccessful()) {
                 result.setValue("Вы успешно вошли в аккаунт");

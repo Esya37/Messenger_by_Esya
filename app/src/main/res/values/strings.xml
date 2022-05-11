@@ -18,6 +18,7 @@
     <string name="change_avatar">Изменить аватар</string>
     <string name="delete_avatar">Удалить аватар</string>
     <string name="rename_profile_name_and_press_accept_button">Измените имя профиля и нажмите кнопку "Подтвердить"</string>
+    <string name="rename_chat_name_and_press_accept_button">Измените название чата и нажмите кнопку "Подтвердить"</string>
     <string name="cancel">Отменить</string>
     <string name="enter_name">Введите имя</string>
     <string name="enter_old_password">Введите старый пароль:</string>
@@ -29,6 +30,7 @@
     <string name="yes">Да</string>
     <string name="no">Нет</string>
     <string name="your_current_avatar">Ваш текущий аватар:</string>
+    <string name="chat_current_avatar">Текущий аватар чата:</string>
     <string name="upload_from_device">Загрузить с устройства</string>
     <string name="or">Или</string>
     <string name="insert_link_to_photo_hint">Вставьте ссылку на фото</string>
@@ -48,10 +50,28 @@
     <string name="enter_user_email">Введите адрес электронной почты пользователя</string>
     <string name="enter_user_name">Введите имя пользователя</string>
     <string name="you_cant_not_be_a_chat_participant">Вы не можете не быть участником чата</string>
+    <string name="you_cant_exclude_current_chat_participants">Вы не можете исключить текущих участников чата</string>
     <string name="user_create_a_chat">%1$s создает чат</string>
     <string name="something_went_wrong_try_inserting_another_link_or_saving_the_image_to_the_device_memory">Что-то пошло не так:( Попробуйте вставить другую ссылку или сохраните изображение в память устройства</string>
     <string name="check_your_internet_connection">Проверьте подключение к Интернету</string>
     <string name="send_image">Отправить изображение?</string>
     <string name="users_cant_be_less_than_2">Пользователей не может быть меньше 2</string>
+    <string name="participants">Участники</string>
+    <string name="attachments">Вложения</string>
+    <string name="change_chat_name">Изменить название чата</string>
+    <string name="change_chat_avatar">Изменить аватар чата</string>
+    <string name="delete_chat_avatar">Удалить аватар чата</string>
+    <string name="leave_from_chat">Выйти из чата</string>
+    <string name="invite_participants">Пригласить участников</string>
+    <string name="attachments_is_missing">Вложения отсутствуют</string>
+    <string name="enter_image_content_description">Введите описание изображения</string>
+    <string name="user_online">Пользователь онлайн</string>
+    <string name="user_offline">Пользователь оффлайн</string>
+    <string name="user_is_selected">Пользователь выбран</string>
+    <string name="user_is_unselected">Пользователь не выбран</string>
+    <string name="attach_attachments">Прикрепить вложения</string>
+    <string name="open_menu">Открыть меню</string>
+    <string name="open_settings">Открыть настройки</string>
+
 
 </resources>

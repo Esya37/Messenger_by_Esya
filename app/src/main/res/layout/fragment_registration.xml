@@ -20,45 +20,56 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
+                android:accessibilityLiveRegion="none"
+                android:importantForAccessibility="no"
                 android:text="@string/repeat_password"
                 android:textColor="@color/authentification_text"
                 android:textSize="20sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/editTextTextPasswordRegistration" />
+                app:layout_constraintTop_toBottomOf="@+id/editTextTextPasswordRegistration"
+                tools:ignore="TextContrastCheck" />
 
             <TextView
                 android:id="@+id/textView6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
+                android:accessibilityLiveRegion="none"
+                android:importantForAccessibility="no"
                 android:text="@string/enter_password"
                 android:textColor="@color/authentification_text"
                 android:textSize="20sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/editTextTextEmailAddressRegistration" />
+                app:layout_constraintTop_toBottomOf="@+id/editTextTextEmailAddressRegistration"
+                tools:ignore="TextContrastCheck" />
 
             <TextView
                 android:id="@+id/textView5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                android:accessibilityLiveRegion="none"
+                android:importantForAccessibility="no"
                 android:text="@string/enter_email"
                 android:textColor="@color/authentification_text"
                 android:textSize="20sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="TextContrastCheck" />
 
             <EditText
                 android:id="@+id/editTextTextEmailAddressRegistration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                android:accessibilityLiveRegion="assertive"
                 android:backgroundTint="@color/white"
                 android:ems="10"
                 android:hint="@string/enter_email_hint"
+                android:importantForAccessibility="yes"
                 android:inputType="textEmailAddress"
                 android:textColor="@color/authentification_text"
                 android:textColorHighlight="@color/white"
@@ -66,39 +77,46 @@
                 android:textSize="20sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView5" />
+                app:layout_constraintTop_toBottomOf="@+id/textView5"
+                android:importantForAutofill="no" />
 
             <EditText
                 android:id="@+id/editTextTextPasswordRegistration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                android:accessibilityLiveRegion="assertive"
                 android:backgroundTint="@color/white"
                 android:ems="10"
                 android:hint="@string/enter_password_hint"
+                android:importantForAccessibility="yes"
                 android:inputType="textPassword"
                 android:textColor="@color/authentification_text"
                 android:textColorHint="@color/authentification_text_hint"
                 android:textSize="20sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView6" />
+                app:layout_constraintTop_toBottomOf="@+id/textView6"
+                android:importantForAutofill="no" />
 
             <EditText
                 android:id="@+id/editTextTextPassword2Registration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                android:accessibilityLiveRegion="assertive"
                 android:backgroundTint="@color/white"
                 android:ems="10"
                 android:hint="@string/repeat_password_hint"
+                android:importantForAccessibility="yes"
                 android:inputType="textPassword"
                 android:textColor="@color/authentification_text"
                 android:textColorHint="@color/authentification_text_hint"
                 android:textSize="20sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView7" />
+                app:layout_constraintTop_toBottomOf="@+id/textView7"
+                android:importantForAutofill="no" />
 
             <Button
                 android:id="@+id/registrationSubmitButton"
@@ -106,7 +124,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="50dp"
                 android:layout_marginBottom="10dp"
+                android:accessibilityLiveRegion="assertive"
                 android:background="@drawable/authentification_button"
+                android:importantForAccessibility="yes"
                 android:padding="15dp"
                 android:text="@string/accept"
                 android:textAllCaps="false"

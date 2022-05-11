@@ -9,7 +9,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.messengerbyesya.R;
@@ -54,6 +53,8 @@ public class ChatsRecyclerViewAdapter {
             tempChat.setDateOfLastMessage(timestamp.toDate());
             tempChat.setUsersEmails((ArrayList<String>) snapshot.get("users_emails"));
             tempChat.setCountOfUncheckedMessages((Map<String, Long>) snapshot.get("count_of_unchecked_messages"));
+            tempChat.setChatName((String) snapshot.get("chat_name"));
+            tempChat.setChatAvatar((String) snapshot.get("chat_avatar"));
             tempChat.setChatId(snapshot.getId());
             return tempChat;
         }).build();
@@ -92,24 +93,29 @@ public class ChatsRecyclerViewAdapter {
                     }
 
                     //TODO: Проверить, удаляются ли слушатели
-                    //TODO: Удалить слушатели при выходе пользователя из аккаунта
                     //firebaseFirestore.collection("user").whereEqualTo("email", tempEmail).get().addOnSuccessListener(queryDocumentSnapshots -> {
-                    firebaseFirestore.collection("user").whereEqualTo("email", tempEmail).addSnapshotListener((Activity) context, (value, error) -> {
+                    firebaseFirestore.collection("user").whereEqualTo("email", tempEmail).addSnapshotListener((Activity) holder.chatAvatarImageView.getContext(), (value, error) -> {
                         if ((value != null) && (!value.isEmpty())) {
                             User tempUser = new User();
                             tempUser = value.getDocuments().get(0).toObject(User.class);
                             holder.chatNameTextView.setText(tempUser.getName());
                             if (tempUser.isUserOnline()) {
                                 holder.onlineMarkerImageView.setVisibility(View.VISIBLE);
+                                holder.onlineMarkerImageView.setContentDescription(context.getString(R.string.user_online));
                             } else {
                                 holder.onlineMarkerImageView.setVisibility(View.INVISIBLE);
+                                holder.onlineMarkerImageView.setContentDescription(context.getString(R.string.user_offline));
                             }
+                            holder.chatAvatarImageView.setContentDescription("Аватар пользователя " + tempUser.getName());
                             firebaseStorageRef.child("avatars/" + tempUser.getAvatar()).getDownloadUrl().addOnSuccessListener(uri -> Picasso.with(holder.chatAvatarImageView.getContext()).load(uri).resize(50, 50).centerCrop().into(holder.chatAvatarImageView));
                         }
                     });
                 } else {
-                    holder.chatNameTextView.setText("Беседа " + chat.getChatId());
-                    holder.chatAvatarImageView.setImageDrawable(AppCompatResources.getDrawable(holder.chatAvatarImageView.getContext(), R.drawable.message_current_user_background));
+                    holder.chatNameTextView.setText(chat.getChatName());
+                    if (!chat.getChatAvatar().isEmpty()) {
+                        holder.chatAvatarImageView.setContentDescription("Аватар чата " + chat.getChatName());
+                        firebaseStorageRef.child(chat.getChatAvatar()).getDownloadUrl().addOnSuccessListener(uri -> Picasso.with(holder.chatAvatarImageView.getContext()).load(uri).resize(50, 50).centerCrop().into(holder.chatAvatarImageView));
+                    }
                 }
 
 

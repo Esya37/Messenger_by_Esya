@@ -16,6 +16,8 @@
             android:id="@+id/allChatsRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:accessibilityLiveRegion="assertive"
+            android:importantForAccessibility="yes"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -27,7 +29,10 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginTop="50dp"
+            android:accessibilityLiveRegion="assertive"
             android:clickable="true"
+            android:contentDescription="@string/open_menu"
+            android:importantForAccessibility="yes"
             android:src="@drawable/menu_hamburger_icon"
             app:backgroundTint="@android:color/transparent"
             app:borderWidth="0dp"
@@ -37,13 +42,17 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:maxImageSize="24dp"
-            app:pressedTranslationZ="0dp" />
+            app:pressedTranslationZ="0dp"
+            tools:ignore="ImageContrastCheck"
+            android:focusable="true" />
 
         <Button
             android:id="@+id/startNewDialogButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:accessibilityLiveRegion="assertive"
             android:background="@drawable/authentification_button"
+            android:importantForAccessibility="yes"
             android:text="@string/start_new_dialog"
             android:textAllCaps="false"
             android:textColor="@drawable/authentification_button_color"
@@ -58,7 +67,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:accessibilityLiveRegion="assertive"
         android:background="@color/authentification_background"
+        android:importantForAccessibility="yes"
         app:headerLayout="@layout/header_of_navigation_view"
         app:itemTextColor="@color/white"
         app:menu="@menu/navigation_view_menu" />

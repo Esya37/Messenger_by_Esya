@@ -11,8 +11,8 @@
     <color name="authentification_background">#2F3968</color>
     <color name="enter_message_field_background">#E3E3E3</color>
     <color name="delete_avatar_button_background">#FF0000</color>
-    <color name="authentification_text">#0C97D6</color>
-    <color name="authentification_text_hint">#AEAEAE</color>
+    <color name="authentification_text">#03A9F4</color>
+    <color name="authentification_text_hint">#546E7A</color>
     <color name="authentification_button_background">#3D4983</color>
 
 </resources>

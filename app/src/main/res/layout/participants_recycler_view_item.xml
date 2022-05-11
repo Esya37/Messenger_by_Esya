@@ -3,10 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@color/authentification_background">
 
     <TextView
-        android:id="@+id/userEmailTextView"
+        android:id="@+id/participantEmailTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
@@ -17,41 +18,45 @@
         android:maxLines="1"
         android:textColor="@color/white"
         android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="@+id/userAvatarImageView"
+        app:layout_constraintBottom_toBottomOf="@+id/participantAvatarImageView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/userAvatarImageView"
-        app:layout_constraintTop_toBottomOf="@+id/userNameTextView"
-        tools:ignore="TextContrastCheck"
+        app:layout_constraintStart_toEndOf="@+id/participantAvatarImageView"
+        app:layout_constraintTop_toBottomOf="@+id/participantNameTextView"
         tools:text="andreyevs3@yandex.ru" />
 
-    <CheckBox
-        android:id="@+id/isUserCheckedCheckBox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:accessibilityLiveRegion="assertive"
-        android:buttonTint="@color/white"
-        android:importantForAccessibility="yes"
-        app:layout_constraintBottom_toBottomOf="@+id/userAvatarImageView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/userAvatarImageView" />
-
     <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/userAvatarImageView"
+        android:id="@+id/participantAvatarImageView"
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
         android:accessibilityLiveRegion="assertive"
         android:importantForAccessibility="yes"
-        app:layout_constraintStart_toEndOf="@+id/isUserCheckedCheckBox"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:shapeAppearanceOverlay="@style/image_view_style"
-        tools:ignore="ImageContrastCheck"
         tools:srcCompat="@tools:sample/avatars" />
 
+    <ImageView
+        android:id="@+id/participantOnlineMarkerImageView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:accessibilityLiveRegion="assertive"
+        android:importantForAccessibility="yes"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="@+id/participantAvatarImageView"
+        app:layout_constraintHeight_percent="0.15"
+        app:layout_constraintHorizontal_bias="0.1"
+        app:layout_constraintStart_toStartOf="@+id/participantAvatarImageView"
+        app:layout_constraintTop_toTopOf="@+id/participantAvatarImageView"
+        app:layout_constraintVertical_bias="0.9"
+        app:srcCompat="@drawable/online_marker"
+        tools:ignore="ImageContrastCheck" />
+
     <TextView
-        android:id="@+id/userNameTextView"
+        android:id="@+id/participantNameTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
@@ -62,10 +67,9 @@
         android:maxLines="2"
         android:textColor="@color/white"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/userEmailTextView"
+        app:layout_constraintBottom_toTopOf="@+id/participantEmailTextView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/userAvatarImageView"
-        app:layout_constraintTop_toTopOf="@+id/userAvatarImageView"
-        tools:ignore="TextContrastCheck"
+        app:layout_constraintStart_toEndOf="@+id/participantAvatarImageView"
+        app:layout_constraintTop_toTopOf="@+id/participantAvatarImageView"
         tools:text="Андрей Евсеев" />
 </androidx.constraintlayout.widget.ConstraintLayout>

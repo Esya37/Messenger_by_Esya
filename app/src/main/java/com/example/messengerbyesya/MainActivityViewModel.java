@@ -8,6 +8,8 @@ import android.net.Uri;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.messengerbyesya.fragments.CreateChatFragment;
+import com.example.messengerbyesya.fragments.ShowParticipantsOrAttachmentsFragment;
 import com.example.messengerbyesya.model.Chat;
 import com.example.messengerbyesya.model.Message;
 import com.example.messengerbyesya.model.MessengerRepository;
@@ -15,6 +17,7 @@ import com.example.messengerbyesya.model.User;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.ListResult;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -22,6 +25,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -34,9 +38,27 @@ public class MainActivityViewModel extends ViewModel {
     private final MessengerRepository messengerRepository;
     private ExecutorService executorService;
     private Chat currentChat;
+    private CreateChatFragment.ActionType currentActionType;
+    private ShowParticipantsOrAttachmentsFragment.ShowedItemType showedItemType;
 
     public MainActivityViewModel() {
         messengerRepository = new MessengerRepository();
+    }
+
+    public CreateChatFragment.ActionType getCurrentActionType() {
+        return currentActionType;
+    }
+
+    public void setCurrentActionType(CreateChatFragment.ActionType currentActionType) {
+        this.currentActionType = currentActionType;
+    }
+
+    public ShowParticipantsOrAttachmentsFragment.ShowedItemType getShowedItemType() {
+        return showedItemType;
+    }
+
+    public void setShowedItemType(ShowParticipantsOrAttachmentsFragment.ShowedItemType showedItemType) {
+        this.showedItemType = showedItemType;
     }
 
     public Chat getCurrentChat() {
@@ -76,6 +98,7 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     public void signOut() {
+        messengerRepository.changeOnlineStatus(currentUserId, false);
         messengerRepository.signOut();
     }
 
@@ -93,6 +116,14 @@ public class MainActivityViewModel extends ViewModel {
 
     public void uploadTempAvatar(Bitmap bitmap, User user) {
         messengerRepository.uploadTempAvatar(bitmap, user);
+    }
+
+    public Task<Uri> getChatAvatar(String chatAvatarPath) {
+        return messengerRepository.getChatAvatar(chatAvatarPath);
+    }
+
+    public void uploadChatAvatar(Bitmap bitmap, ProgressDialog pd) {
+        messengerRepository.uploadChatAvatar(bitmap, currentChat, pd);
     }
 
     public void sendImage(Message message, Bitmap bitmap) {
@@ -125,12 +156,24 @@ public class MainActivityViewModel extends ViewModel {
         newChat.setCountOfUncheckedMessages(countOfUncheckedMessages);
         newChat.setUsersEmails(usersEmails);
         newChat.setDateOfLastMessage(new Date());
+        newChat.setChatAvatar("");
 
         return messengerRepository.createChat(newChat, currentUser.getEmail(), context.getString(R.string.user_create_a_chat, currentUser.getName()));
     }
 
-    public Task<QuerySnapshot> getCurrentUserFromDB(String email) {
-        return messengerRepository.getCurrentUserFromDB(email);
+    public void inviteParticipants(List<User> newChatUsers) {
+        for (int i = 0; i < newChatUsers.size(); i++) {
+            currentChat.getUsersEmails().add(newChatUsers.get(i).getEmail());
+            currentChat.getCountOfUncheckedMessages().put(newChatUsers.get(i).getEmail(), 0L);
+        }
+        for(int i=0; i<currentChat.getUsersEmails().size(); i++){
+            currentChat.getCountOfUncheckedMessages().put(currentChat.getUsersEmails().get(i), currentChat.getCountOfUncheckedMessages().get(currentChat.getUsersEmails().get(i)) + newChatUsers.size());
+        }
+        messengerRepository.inviteParticipants(currentChat, currentUser, newChatUsers);
+    }
+
+    public Task<QuerySnapshot> getUserFromDB(String email) {
+        return messengerRepository.getUserFromDB(email);
     }
 
     public String getFinalImageUri(String notFinalImageUri) {
@@ -141,6 +184,7 @@ public class MainActivityViewModel extends ViewModel {
                 try {
                     finalURL[0] = getFinalURL(notFinalImageUri);
                 } catch (IOException e) {
+                    finalURL[0] = ":(";
                     e.printStackTrace();
                 }
                 return null;
@@ -152,8 +196,24 @@ public class MainActivityViewModel extends ViewModel {
         return finalURL[0];
     }
 
+    public Task<Uri> getImageDownloadUrl(String imagePath) {
+        return messengerRepository.getImageDownloadUrl(imagePath);
+    }
+
+    public Task<ListResult> getImagesFromFolder(String folderPath) {
+        return messengerRepository.getImagesFromFolder(folderPath);
+    }
+
     public void setUser(User user, String userId) {
         messengerRepository.setUser(user, userId);
+    }
+
+    public void setChat(Chat chat) {
+        messengerRepository.setChat(chat);
+    }
+
+    public void leaveFromChat() {
+        messengerRepository.leaveFromChat(currentChat, currentUser);
     }
 
     public Task<Void> deleteImage(String imagePath) {

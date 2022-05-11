@@ -16,18 +16,42 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+            <EditText
+                android:id="@+id/imageContentDescriptionEditText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="30dp"
+                android:layout_marginBottom="10dp"
+                android:accessibilityLiveRegion="assertive"
+                android:ems="10"
+                android:hint="@string/enter_image_content_description"
+                android:importantForAccessibility="yes"
+                android:inputType="textPersonName"
+                android:minHeight="48dp"
+                android:textColorHint="@color/authentification_text_hint"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/pickedImageImageView"
+                android:autofillHints="" />
+
             <ImageView
                 android:id="@+id/pickedImageImageView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
+                android:accessibilityLiveRegion="assertive"
                 android:adjustViewBounds="true"
                 android:contentDescription="@string/avatar"
                 android:cropToPadding="true"
+                android:importantForAccessibility="yes"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="ImageContrastCheck"
                 tools:srcCompat="@tools:sample/avatars" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

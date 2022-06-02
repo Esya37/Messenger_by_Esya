@@ -16,7 +16,7 @@
         android:accessibilityLiveRegion="none"
         android:importantForAccessibility="yes"
         android:text="@string/profile_settings"
-        android:textColor="@color/white"
+        android:textColor="@color/text_color"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"

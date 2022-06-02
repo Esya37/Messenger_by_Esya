@@ -72,6 +72,10 @@
     <string name="attach_attachments">Прикрепить вложения</string>
     <string name="open_menu">Открыть меню</string>
     <string name="open_settings">Открыть настройки</string>
+    <string name="play_button">Кнопка "Начать проигрывание"</string>
+    <string name="pause_button">Кнопка "Приостановить проигрывание"</string>
+    <string name="voice_message_length">Длина голосового сообщения</string>
+    <string name="voice_message_position">Позиция голосового сообщения</string>
 
 
 </resources>

@@ -26,6 +26,7 @@ public class AuthentificationService {
 
     public LiveData<String> createUser(String email, String password) {
 
+        result.setValue("");
         authTask = firebaseAuth.createUserWithEmailAndPassword(email, password);
         authTask.addOnCompleteListener((OnCompleteListener<AuthResult>) task -> {
             if (task.isSuccessful()) {

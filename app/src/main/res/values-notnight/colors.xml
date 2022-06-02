@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="authentification_background">#A4DEEC</color>
+    <color name="enter_message_field_background">#E3E3E3</color>
+    <color name="delete_avatar_button_background">#FF0000</color>
+    <color name="authentification_text">#000000</color>
+    <color name="authentification_text_hint">#546E7A</color>
+    <color name="authentification_button_background">#00A3E8</color>
+    <color name="text_color">#000000</color>
+    <color name="tab_indicator_color">#00A3E8</color>
+    <color name="online_marker_color">#4BB34B</color>
+    <color name="send_button_pressed_color">#FFFFFF</color>
+    <color name="message_current_user_background_color">#D679FD</color>
+    <color name="message_other_users_background_color">#2196F3</color>
+</resources>

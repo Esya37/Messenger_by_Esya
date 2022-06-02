@@ -167,7 +167,9 @@ public class SelectChatFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        adapter.stopListening();
+        if(adapter!=null) {
+            adapter.stopListening();
+        }
     }
 
     public String generateRandomColorHex() {

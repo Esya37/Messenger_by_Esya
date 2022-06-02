@@ -29,6 +29,7 @@ public class Message {
         this.date = date;
         this.senderEmail = senderEmail;
         this.isMediaResource = false;
+        contentDescription = "";
     }
 
     @PropertyName("sender_email")

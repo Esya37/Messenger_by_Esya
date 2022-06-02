@@ -122,7 +122,7 @@
             android:ellipsize="end"
             android:importantForAccessibility="yes"
             android:maxLines="1"
-            android:textColor="@color/white"
+            android:textColor="@color/text_color"
             android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="@+id/openNavigationViewButton"
             app:layout_constraintEnd_toStartOf="@+id/optionButton"
@@ -153,6 +153,6 @@
         android:background="@color/authentification_background"
         android:importantForAccessibility="yes"
         app:headerLayout="@layout/header_of_navigation_view"
-        app:itemTextColor="@color/white"
+        app:itemTextColor="@color/text_color"
         app:menu="@menu/navigation_view_menu" />
 </androidx.drawerlayout.widget.DrawerLayout>

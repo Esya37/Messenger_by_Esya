@@ -11,13 +11,17 @@
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/message_background.xml" value="0.21041666666666667" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/message_current_user_background.xml" value="0.21041666666666667" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/message_other_users_background.xml" value="0.2203125" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/microphone_icon.xml" value="0.2625" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/online_marker.xml" value="0.2505" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/options_button_icon.xml" value="0.2585" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/paper_clip_icon.xml" value="0.2585" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/pause_icon.xml" value="0.2625" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/play_icon.xml" value="0.2625" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/search_icon.xml" value="0.2585" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/drawable/send_button_text_color.xml" value="0.22135416666666666" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/activity_main.xml" value="0.22" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/attachments_recycler_view_item.xml" value="0.3625" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/audio_player.xml" value="0.3625" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/change_avatar_dialog.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/change_name_dialog.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/User/AndroidStudioProjects/MessengerbyEsya/app/src/main/res/layout/change_password_dialog.xml" value="0.25" />

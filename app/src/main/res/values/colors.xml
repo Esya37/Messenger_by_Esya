@@ -14,5 +14,11 @@
     <color name="authentification_text">#03A9F4</color>
     <color name="authentification_text_hint">#546E7A</color>
     <color name="authentification_button_background">#3D4983</color>
+    <color name="text_color">#FFFFFF</color>
+    <color name="tab_indicator_color">#FFFFFF</color>
+    <color name="online_marker_color">#00FF00</color>
+    <color name="send_button_pressed_color">#03A9F4</color>
+    <color name="message_current_user_background_color">#E9B4FF</color>
+    <color name="message_other_users_background_color">#1FE7FA</color>
 
 </resources>

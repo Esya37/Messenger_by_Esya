@@ -301,8 +301,10 @@ public class ChatFragment extends BaseFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        adapter.unregisterAdapterDataObserver(adapterDataObserver);
-        adapter.stopListening();
+        if(adapter!=null) {
+            adapter.unregisterAdapterDataObserver(adapterDataObserver);
+            adapter.stopListening();
+        }
     }
 
     @Override
@@ -321,12 +323,12 @@ public class ChatFragment extends BaseFragment {
 
         adapter = recyclerViewAdapter.getAdapter(adapter, model.getCurrentUser().getEmail(), model.getCurrentChat().getChatId());
 
-        adapterDataObserver = new RecyclerView.AdapterDataObserver() { //TODO: Если пользователь находится в чате - автоматически прочитать сообщение
+        adapterDataObserver = new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 super.onItemRangeInserted(positionStart, itemCount);
                 messagesRecyclerView.smoothScrollToPosition(adapter.getItemCount() - 1);
-
+                model.readMessage();
             }
         };
         adapter.registerAdapterDataObserver(adapterDataObserver);

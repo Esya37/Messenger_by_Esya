@@ -124,25 +124,35 @@ public class FirestoreService {
     }
 
     public void sendMessage(Message message, Chat currentChat) {
-        WriteBatch writeBatch = firebaseFirestore.batch();
-        writeBatch.set(firebaseFirestore.collection("chats").document(currentChat.getChatId()).collection("messages").document(), message);
-        writeBatch.update(firebaseFirestore.collection("chats").document(currentChat.getChatId()), "date_of_last_message", message.getDate());
-        for (int i = 0; i < currentChat.getUsersEmails().size(); i++) {
-            if (!currentChat.getUsersEmails().get(i).equals(message.getSenderEmail())) {
-                currentChat.getCountOfUncheckedMessages().put(currentChat.getUsersEmails().get(i), currentChat.getCountOfUncheckedMessages().get(currentChat.getUsersEmails().get(i)) + 1);
+        firebaseFirestore.collection("chats").document(currentChat.getChatId()).get().addOnSuccessListener(documentSnapshot -> {
+            Chat currentChat1 = documentSnapshot.toObject(Chat.class);
+            currentChat1.setChatId(documentSnapshot.getId());
+            WriteBatch writeBatch = firebaseFirestore.batch();
+            writeBatch.set(firebaseFirestore.collection("chats").document(currentChat1.getChatId()).collection("messages").document(), message);
+            writeBatch.update(firebaseFirestore.collection("chats").document(currentChat1.getChatId()), "date_of_last_message", message.getDate());
+            for (int i = 0; i < currentChat1.getUsersEmails().size(); i++) {
+                if (!currentChat1.getUsersEmails().get(i).equals(message.getSenderEmail())) {
+                    currentChat1.getCountOfUncheckedMessages().put(currentChat1.getUsersEmails().get(i), currentChat1.getCountOfUncheckedMessages().get(currentChat1.getUsersEmails().get(i)) + 1);
+                }
             }
-        }
-        writeBatch.update(firebaseFirestore.collection("chats").document(currentChat.getChatId()), "count_of_unchecked_messages", currentChat.getCountOfUncheckedMessages());
-        writeBatch.commit();
+            writeBatch.update(firebaseFirestore.collection("chats").document(currentChat1.getChatId()), "count_of_unchecked_messages", currentChat1.getCountOfUncheckedMessages());
+            writeBatch.commit();
+        });
+
     }
 
     public void readMessage(String currentUserEmail, Chat currentChat) {
-        for (int i = 0; i < currentChat.getUsersEmails().size(); i++) {
-            if (currentChat.getUsersEmails().get(i).equals(currentUserEmail)) {
-                currentChat.getCountOfUncheckedMessages().put(currentChat.getUsersEmails().get(i), 0L);
+        firebaseFirestore.collection("chats").document(currentChat.getChatId()).get().addOnSuccessListener(documentSnapshot -> {
+            Chat currentChat1 = documentSnapshot.toObject(Chat.class);
+            currentChat1.setChatId(documentSnapshot.getId());
+            for (int i = 0; i < currentChat1.getUsersEmails().size(); i++) {
+                if (currentChat1.getUsersEmails().get(i).equals(currentUserEmail)) {
+                    currentChat1.getCountOfUncheckedMessages().put(currentChat1.getUsersEmails().get(i), 0L);
+                }
             }
-        }
-        firebaseFirestore.collection("chats").document(currentChat.getChatId()).update("count_of_unchecked_messages", currentChat.getCountOfUncheckedMessages());
+            firebaseFirestore.collection("chats").document(currentChat1.getChatId()).update("count_of_unchecked_messages", currentChat1.getCountOfUncheckedMessages());
+
+        });
     }
 
     public void changeOnlineStatus(String currentUserId, boolean isUserOnline) {

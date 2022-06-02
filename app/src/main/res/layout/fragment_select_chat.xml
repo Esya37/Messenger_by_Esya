@@ -71,6 +71,6 @@
         android:background="@color/authentification_background"
         android:importantForAccessibility="yes"
         app:headerLayout="@layout/header_of_navigation_view"
-        app:itemTextColor="@color/white"
+        app:itemTextColor="@color/text_color"
         app:menu="@menu/navigation_view_menu" />
 </androidx.drawerlayout.widget.DrawerLayout>
